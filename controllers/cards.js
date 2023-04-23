@@ -42,13 +42,22 @@ const deleteCard = (req, res,) => {
     .catch(() => {return res.status(500).send('Ошибка сервера')});
 };
 
+const myCard = (card, res) => {
+  if (card) {
+    return res.status(200).send(card);
+  }
+  return res.status(404).send({ message: 'Карточки не существует' });
+};
+
 const likeCard = (req, res) => {
   Card.findByIdAndUpdate(
     req.params.cardId,
-    { $addToSet: { likes: req.user._id } },
+    { $addToSet: { likes: req.user.id } },
     { new: true }
   )
-    .orFail(() => res.status(404).send({ message: 'Карточки не существует' }))
+    .then((card) => {
+      myCard(card, res);
+    })
     .catch((err) => {
       if (err.name === 'ValidationError') {
         return res
@@ -62,10 +71,12 @@ const likeCard = (req, res) => {
 const dislikeCard = (req, res) => {
   Card.findByIdAndUpdate(
     req.params.cardId,
-    { $pull: { likes: req.user._id } },
+    { $pull: { likes: req.user.id } },
     { new: true }
   )
-    .orFail(() => res.status(404).send({ message: 'Карточки не существует' }))
+    .then((card) => {
+      myCard(card, res);
+    })
     .catch((err) => {
       if (err.name === 'ValidationError') {
         return res

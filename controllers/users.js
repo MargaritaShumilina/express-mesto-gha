@@ -52,19 +52,19 @@ const getUsers = (req, res) => {
 
 const userMe = (user, res) => {
   if (user) {
-        return res.status(200).send(user)
-      }
+    return res.status(200).send(user)
+  }
   return res.status(404).send({ message: 'Пользователь не существует' });
 }
 
 const updateUserData = (req, res) => {
-  const UserId = req.params._id;
+  const userId = req.user.id;
 
   const { name, about } = req.body;
-
+console.log(req.user.id);
 
   User.findByIdAndUpdate(
-    UserId,
+    userId,
     {
       name,
       about
@@ -74,48 +74,45 @@ const updateUserData = (req, res) => {
       runValidators: true,
     }
   )
-    // .orFail(()=> res.status(404).send({ message: 'Пользователь не существует' }))
     .then((user) => {
       userMe(user, res)
     })
     .catch((err) => {
-      if (err.name === "ValidationError") {
+      if (err.name === 'ValidationError') {
         return res.status(400).send({
-          message: "Переданы некорректные данные при обновлении профиля",
+          message: 'Переданы некорректные данные при обновлении профиля',
         });
       }
-      return res.status(500).send({ message: "Ошибка сервера" });
+      return res.status(500).send({ message: 'Ошибка сервера' });
     });
 };
 
 const updateUserAvatar = (req, res) => {
 
-  const UserId = req.params._id;
+  const userId = req.user.id;
 
   const { avatar } = req.body;
 
+  console.log(req.user.id);
+
   User.findByIdAndUpdate(
-    UserId,
+    userId,
     { avatar },
     {
       new: true,
       runValidators: true,
     }
   )
-    // .orFail(() =>
-    //   res.status(404).send({ message: 'Пользователь не существует' })
-    // )
-    // .then((avatar) => res.status(200).send(avatar))
     .then((user) => {
       userMe(user, res);
     })
     .catch((err) => {
-      if (err.name === "ValidationError") {
+      if (err.name === 'ValidationError') {
         return res.status(400).send({
-          message: "Переданы некорректные данные при обновлении профиля",
+          message: 'Переданы некорректные данные при обновлении профиля',
         });
       }
-      return res.status(500).send({ message: "Ошибка сервера" });
+      return res.status(500).send({ message: 'Ошибка сервера' });
     });
 };
 
