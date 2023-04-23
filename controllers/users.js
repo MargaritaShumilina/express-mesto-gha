@@ -1,11 +1,6 @@
 const User = require('../models/users');
-const {
-  PAGE_NOT_FOUND,
-  BAD_REQUEST,
-  INTERNAL_SERVER_ERROR,
-} = require('../errors');
 
-const createUser = (req, res, next) => {
+const createUser = (req, res) => {
   const { name, about, avatar } = req.body;
 
   User.create({ name, about, avatar })
@@ -14,40 +9,40 @@ const createUser = (req, res, next) => {
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        next(new BAD_REQUEST('Отправлены неправильные данные'));
+        res.status(400).send({massage: 'Отправлены неправильные данные'});
       }
-      next(new INTERNAL_SERVER_ERROR('Ошибка данных'));
+      return res.status(500).send('Ошибка сервера');
     });
 };
 
-const getFiltredUser = (req, res, next) => {
+const getFiltredUser = (req, res) => {
   const { id } = req.params;
 
   User.findById(id)
-    .orFail(
-      () => new PAGE_NOT_FOUND('Пользователь не существует'),
+    .orFail(() =>
+      res.status(404).send({massage: 'Пользователь не существует'})
     )
     .then((user) => {
       res.status(200).send({ data: user });
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        next(new BAD_REQUEST('Невалидный id'));
+        res.status(400).send({massage: 'Невалидный id'});
       }
-      next(new INTERNAL_SERVER_ERROR('Ошибка данных'));
+     return res.status(500).send({ massage: 'Ошибка сервера' });
     });
 };
 
-const getUsers = (req, res, next) => {
+const getUsers = (req, res) => {
   User.find({})
     .then((users) => {
       res.status(200).send(users);
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        next(new BAD_REQUEST('Отправлены неправильные данные'));
+        res.status(400).send({ massage: 'Отправлены неправильные данные' });
       }
-      next(new INTERNAL_SERVER_ERROR('Ошибка данных'));
+      return res.status(500).send({ massage: 'Ошибка сервера' });
     });
 };
 
@@ -61,19 +56,19 @@ const updateUserData = (req, res, next) => {
     {
       new: true,
       runValidators: true,
-    },
+    }
   )
-    .orFail(
-      () => new PAGE_NOT_FOUND('Пользователь не существует'),
-    )
+    .orFail(()=> res.status(404).send({ massage: 'Пользователь не существует' }))
     .then((user) => res.status(200).send(user))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        next(
-          new BAD_REQUEST('Переданы некорректные данные при обновлении профиля'),
-        );
+        res
+          .status(400)
+          .send({
+            massage: 'Переданы некорректные данные при обновлении профиля'
+          });
       }
-      next(new INTERNAL_SERVER_ERROR('Ошибка данных'));
+      return res.status(500).send({ massage: 'Ошибка сервера' });
     });
 };
 
@@ -84,17 +79,19 @@ const updateUserAvatar = (req, res, next) => {
     {
       new: true,
       runValidators: true,
-    },
+    }
   )
-    .orFail(() => new PAGE_NOT_FOUND('Пользователь не существует'))
+    .orFail(() =>
+      res.status(404).send({ massage: 'Пользователь не существует' })
+    )
     .then((avatar) => res.send(avatar))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        next(
-          new BAD_REQUEST('Переданы некорректные данные при обновлении профиля'),
-        );
+        res.status(400).send({
+          massage: 'Переданы некорректные данные при обновлении профиля',
+        });
       }
-      next(new INTERNAL_SERVER_ERROR('Ошибка данных'));
+      return res.status(500).send({ massage: 'Ошибка сервера' });
     });
 };
 

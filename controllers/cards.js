@@ -1,9 +1,4 @@
 const Card = require('../models/cards');
-const {
-  PAGE_NOT_FOUND,
-  BAD_REQUEST,
-  INTERNAL_SERVER_ERROR,
-} = require('../errors');
 
 const createCards = (req, res, next) => {
   const { id } = req.user;
@@ -15,9 +10,9 @@ const createCards = (req, res, next) => {
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        next(new BAD_REQUEST('Отправлены неправильные данные'));
+        res.status(400).send({ massage: 'Отправлены неправильные данные' });
       }
-      next(new INTERNAL_SERVER_ERROR('Ошибка данных'));
+      return res.status(500).send('Ошибка сервера');
     });
 };
 
@@ -28,31 +23,33 @@ const getCards = (req, res, next) => {
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        next(new BAD_REQUEST('Отправлены неправильные данные'));
+        res.status(400).send({ massage: 'Отправлены неправильные данные' });
       }
-      next(new INTERNAL_SERVER_ERROR('Ошибка данных'));
+      return res.status(500).send('Ошибка сервера');
     });
 };
 
 const deleteCard = (req, res, next) => {
   Card.findByIdAndRemove(req.params.id)
-    .orFail(() => new PAGE_NOT_FOUND('Карточки не существует'))
+    .orFail(() =>
+      res.status(404).send({ massage: 'Карточки не существует' })
+    )
     .then((card) => res.status(200).send({ data: card }))
-    .catch(() => next(new INTERNAL_SERVER_ERROR('Ошибка данных')));
+    .catch(() => res.status(500).send('Ошибка сервера'));
 };
 
 const likeCard = (req, res, next) => {
   Card.findByIdAndUpdate(
     req.params.cardId,
     { $addToSet: { likes: req.user._id } },
-    { new: true },
+    { new: true }
   )
-    .orFail(() => new PAGE_NOT_FOUND('Карточки не существует'))
+    .orFail(() => res.status(404).send({ massage: 'Карточки не существует' }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        next(new BAD_REQUEST('Отправлены неправильные данные'));
+        res.status(400).send({ massage: 'Отправлены неправильные данные' });
       }
-      next(new INTERNAL_SERVER_ERROR('Ошибка данных'));
+      return res.status(500).send('Ошибка сервера');
     });
 };
 
@@ -60,14 +57,14 @@ const dislikeCard = (req, res, next) => {
   Card.findByIdAndUpdate(
     req.params.cardId,
     { $pull: { likes: req.user._id } },
-    { new: true },
+    { new: true }
   )
-    .orFail(() => new PAGE_NOT_FOUND('Карточки не существует'))
+    .orFail(() => res.status(404).send({ massage: 'Карточки не существует' }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        next(new BAD_REQUEST('Отправлены неправильные данные'));
+        res.status(400).send({ massage: 'Отправлены неправильные данные' });
       }
-      next(new INTERNAL_SERVER_ERROR('Ошибка данных'));
+      return res.status(500).send('Ошибка сервера');
     });
 };
 
