@@ -61,7 +61,6 @@ const updateUserData = (req, res) => {
   const userId = req.user.id;
 
   const { name, about } = req.body;
-console.log(req.user.id);
 
   User.findByIdAndUpdate(
     userId,

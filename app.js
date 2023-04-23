@@ -16,7 +16,7 @@ app.use((req, res, next) => {
 });
 app.use(router);
 app.use('*', (req, res) => {
-  res.status(404).send('Page Not Found');
+  res.status(404).send({message: 'Page Not Found'});
 });
 
 app.listen(PORT, () => {

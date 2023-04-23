@@ -35,18 +35,15 @@ const getCards = (req, res) => {
 
 const deleteCard = (req, res,) => {
   Card.findByIdAndRemove(req.params.id)
-    .orFail(() =>
-      res.status(404).send({ message: 'Карточки не существует' })
-    )
     .then((card) => res.status(200).send({ data: card }))
-    .catch(() => {return res.status(500).send('Ошибка сервера')});
-};
-
-const myCard = (card, res) => {
-  if (card) {
-    return res.status(200).send(card);
-  }
-  return res.status(404).send({ message: 'Карточки не существует' });
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        return res
+          .status(400)
+          .send({ message: 'Отправлены неправильные данные' });
+      }
+      return res.status(500).send('Ошибка сервера');
+    });
 };
 
 const likeCard = (req, res) => {
@@ -56,10 +53,10 @@ const likeCard = (req, res) => {
     { new: true }
   )
     .then((card) => {
-      myCard(card, res);
+      return res.status(200).send(card);
     })
     .catch((err) => {
-      if (err.name === 'ValidationError') {
+      if (err.name === 'CastError') {
         return res
           .status(400)
           .send({ message: 'Отправлены неправильные данные' });
@@ -75,10 +72,10 @@ const dislikeCard = (req, res) => {
     { new: true }
   )
     .then((card) => {
-      myCard(card, res);
+      return res.status(200).send(card);
     })
     .catch((err) => {
-      if (err.name === 'ValidationError') {
+      if (err.name === 'CastError') {
         return res
           .status(400)
           .send({ message: 'Отправлены неправильные данные' });
