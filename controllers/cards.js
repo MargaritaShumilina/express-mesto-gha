@@ -34,10 +34,10 @@ const getCards = (req, res) => {
 };
 
 const cardId = (card, res) => {
-  if (card) {
-    return res.status(200).send(ard);
+  if (!card) {
+    throw new Error('NotFound');
   }
-  return res.status(404).send({ message: 'Карточка не существует' });
+  return res.status(200).send(card);
 };
 
 const deleteCard = (req, res,) => {
@@ -48,6 +48,9 @@ const deleteCard = (req, res,) => {
         return res
           .status(400)
           .send({ message: 'Отправлены неправильные данные' });
+      }
+      if (err.message === 'NotFound') {
+        return res.status(404).send({ message: 'Not Found' });
       }
       return res.status(500).send('Ошибка сервера');
     });
@@ -63,10 +66,14 @@ const likeCard = (req, res) => {
       cardId(card, res)
   )
     .catch((err) => {
+      console.log(err.message);
       if (err.name === 'CastError') {
         return res
           .status(400)
           .send({ message: 'Отправлены неправильные данные' });
+      }
+      if (err.message === 'NotFound') {
+        return res.status(404).send({ message: 'Not Found' });
       }
       return res.status(500).send('Ошибка сервера');
     });
@@ -84,6 +91,9 @@ const dislikeCard = (req, res) => {
         return res
           .status(400)
           .send({ message: 'Отправлены неправильные данные' });
+      }
+      if (err.message === 'NotFound') {
+        return res.status(404).send({ message: 'Not Found' });
       }
       return res.status(500).send('Ошибка сервера');
     });
