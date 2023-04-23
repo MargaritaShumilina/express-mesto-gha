@@ -50,14 +50,24 @@ const getUsers = (req, res) => {
     });
 };
 
-
+const userMe = (user, res) => {
+  if (user) {
+        return res.status(200).send(user)
+      }
+  return res.status(404).send({ message: 'Пользователь не существует' });
+}
 
 const updateUserData = (req, res) => {
+  const UserId = req.params._id;
+
+  const { name, about } = req.body;
+
+
   User.findByIdAndUpdate(
-    req.params._id,
+    UserId,
     {
-      name: req.body.name,
-      about: req.body.about,
+      name,
+      about
     },
     {
       new: true,
@@ -66,26 +76,27 @@ const updateUserData = (req, res) => {
   )
     // .orFail(()=> res.status(404).send({ message: 'Пользователь не существует' }))
     .then((user) => {
-      if(user) {
-        res.status(200).send(user);
-      } else {
-        return res.status(404).send({ message: "Пользователь не существует" });
-      }
+      userMe(user, res)
     })
     .catch((err) => {
-      if (err.name === 'ValidationError') {
+      if (err.name === "ValidationError") {
         return res.status(400).send({
-          message: 'Переданы некорректные данные при обновлении профиля',
+          message: "Переданы некорректные данные при обновлении профиля",
         });
       }
-      return res.status(500).send({ message: 'Ошибка сервера' });
+      return res.status(500).send({ message: "Ошибка сервера" });
     });
 };
 
 const updateUserAvatar = (req, res) => {
+
+  const UserId = req.params._id;
+
+  const { avatar } = req.body;
+
   User.findByIdAndUpdate(
-    req.params._id,
-    { avatar: req.body.avatar },
+    UserId,
+    { avatar },
     {
       new: true,
       runValidators: true,
@@ -96,18 +107,15 @@ const updateUserAvatar = (req, res) => {
     // )
     // .then((avatar) => res.status(200).send(avatar))
     .then((user) => {
-      if(user) {
-        res.status(200).send(user);
-      } else {
-        return res.status(404).send({ message: 'Пользователь не существует' });
-      }})
+      userMe(user, res);
+    })
     .catch((err) => {
-      if (err.name === 'ValidationError') {
+      if (err.name === "ValidationError") {
         return res.status(400).send({
-          message: 'Переданы некорректные данные при обновлении профиля',
+          message: "Переданы некорректные данные при обновлении профиля",
         });
       }
-      return res.status(500).send({ message: 'Ошибка сервера' });
+      return res.status(500).send({ message: "Ошибка сервера" });
     });
 };
 
