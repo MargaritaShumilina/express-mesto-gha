@@ -33,9 +33,16 @@ const getCards = (req, res) => {
     });
 };
 
+const cardId = (card, res) => {
+  if (card) {
+    return res.status(200).send(ard);
+  }
+  return res.status(404).send({ message: 'Карточка не существует' });
+};
+
 const deleteCard = (req, res,) => {
   Card.findByIdAndRemove(req.params.id)
-    .then((card) => res.status(200).send({ data: card }))
+    .then((card) => cardId(card, res))
     .catch((err) => {
       if (err.name === 'CastError') {
         return res
@@ -52,9 +59,9 @@ const likeCard = (req, res) => {
     { $addToSet: { likes: req.user.id } },
     { new: true }
   )
-    .then((card) => {
-      return res.status(200).send(card);
-    })
+    .then((card) =>
+      cardId(card, res)
+  )
     .catch((err) => {
       if (err.name === 'CastError') {
         return res
@@ -71,9 +78,7 @@ const dislikeCard = (req, res) => {
     { $pull: { likes: req.user.id } },
     { new: true }
   )
-    .then((card) => {
-      return res.status(200).send(card);
-    })
+    .then((card) => cardId(card, res))
     .catch((err) => {
       if (err.name === 'CastError') {
         return res
