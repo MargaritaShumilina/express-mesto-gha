@@ -50,6 +50,8 @@ const getUsers = (req, res) => {
     });
 };
 
+
+
 const updateUserData = (req, res) => {
   User.findByIdAndUpdate(
     req.params._id,
@@ -62,8 +64,14 @@ const updateUserData = (req, res) => {
       runValidators: true,
     }
   )
-    .orFail(()=> res.status(404).send({ message: 'Пользователь не существует' }))
-    .then((user) => res.status(200).send(user))
+    // .orFail(()=> res.status(404).send({ message: 'Пользователь не существует' }))
+    .then((user) => {
+      if(user) {
+        res.status(200).send(user);
+      } else {
+        return res.status(404).send({ message: "Пользователь не существует" });
+      }
+    })
     .catch((err) => {
       if (err.name === 'ValidationError') {
         return res.status(400).send({
@@ -83,10 +91,16 @@ const updateUserAvatar = (req, res) => {
       runValidators: true,
     }
   )
-    .orFail(() =>
-      res.status(404).send({ message: 'Пользователь не существует' })
-    )
-    .then((avatar) => res.status(200).send(avatar))
+    // .orFail(() =>
+    //   res.status(404).send({ message: 'Пользователь не существует' })
+    // )
+    // .then((avatar) => res.status(200).send(avatar))
+    .then((user) => {
+      if(user) {
+        res.status(200).send(user);
+      } else {
+        return res.status(404).send({ message: 'Пользователь не существует' });
+      }})
     .catch((err) => {
       if (err.name === 'ValidationError') {
         return res.status(400).send({
