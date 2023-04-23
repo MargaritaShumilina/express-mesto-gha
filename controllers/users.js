@@ -11,9 +11,9 @@ const createUser = (req, res) => {
       if (err.name === 'ValidationError') {
         return res
           .status(400)
-          .send({ massage: 'Отправлены неправильные данные' });
+          .send({ message: 'Отправлены неправильные данные' });
       }
-      return res.status(500).send({massage: 'Ошибка сервера'});
+      return res.status(500).send({message: 'Ошибка сервера'});
     });
 };
 
@@ -22,16 +22,16 @@ const getFiltredUser = (req, res) => {
 
   User.findById(id)
     .orFail(() =>
-      res.status(404).send({massage: 'Пользователь не существует'})
+      res.status(404).send({message: 'Пользователь не существует'})
     )
     .then((user) => {
       return res.status(200).send({ data: user });
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        return res.status(400).send({ massage: 'Невалидный id' });
+        return res.status(400).send({ message: 'Невалидный id' });
       }
-     return res.status(500).send({ massage: 'Ошибка сервера' });
+     return res.status(500).send({ message: 'Ошибка сервера' });
     });
 };
 
@@ -44,9 +44,9 @@ const getUsers = (req, res) => {
       if (err.name === 'ValidationError') {
         return res
           .status(400)
-          .send({ massage: 'Отправлены неправильные данные' });
+          .send({ message: 'Отправлены неправильные данные' });
       }
-      return res.status(500).send({ massage: 'Ошибка сервера' });
+      return res.status(500).send({ message: 'Ошибка сервера' });
     });
 };
 
@@ -62,15 +62,15 @@ const updateUserData = (req, res) => {
       runValidators: true,
     }
   )
-    .orFail(()=> res.status(404).send({ massage: 'Пользователь не существует' }))
+    .orFail(()=> res.status(404).send({ message: 'Пользователь не существует' }))
     .then((user) => res.status(200).send(user))
     .catch((err) => {
       if (err.name === 'ValidationError') {
         return res.status(400).send({
-          massage: 'Переданы некорректные данные при обновлении профиля',
+          message: 'Переданы некорректные данные при обновлении профиля',
         });
       }
-      return res.status(500).send({ massage: 'Ошибка сервера' });
+      return res.status(500).send({ message: 'Ошибка сервера' });
     });
 };
 
@@ -84,16 +84,16 @@ const updateUserAvatar = (req, res) => {
     }
   )
     .orFail(() =>
-      res.status(404).send({ massage: 'Пользователь не существует' })
+      res.status(404).send({ message: 'Пользователь не существует' })
     )
     .then((avatar) => res.status(200).send(avatar))
     .catch((err) => {
       if (err.name === 'ValidationError') {
         return res.status(400).send({
-          massage: 'Переданы некорректные данные при обновлении профиля',
+          message: 'Переданы некорректные данные при обновлении профиля',
         });
       }
-      return res.status(500).send({ massage: 'Ошибка сервера' });
+      return res.status(500).send({ message: 'Ошибка сервера' });
     });
 };
 

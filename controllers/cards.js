@@ -12,7 +12,7 @@ const createCards = (req, res) => {
       if (err.name === 'ValidationError') {
         return res
           .status(400)
-          .send({ massage: 'Отправлены неправильные данные' });
+          .send({ message: 'Отправлены неправильные данные' });
       }
       return res.status(500).send('Ошибка сервера');
     });
@@ -27,7 +27,7 @@ const getCards = (req, res) => {
       if (err.name === 'ValidationError') {
         return res
           .status(400)
-          .send({ massage: 'Отправлены неправильные данные' });
+          .send({ message: 'Отправлены неправильные данные' });
       }
       return res.status(500).send('Ошибка сервера');
     });
@@ -36,7 +36,7 @@ const getCards = (req, res) => {
 const deleteCard = (req, res,) => {
   Card.findByIdAndRemove(req.params.id)
     .orFail(() =>
-      res.status(404).send({ massage: 'Карточки не существует' })
+      res.status(404).send({ message: 'Карточки не существует' })
     )
     .then((card) => res.status(200).send({ data: card }))
     .catch(() => {return res.status(500).send('Ошибка сервера')});
@@ -48,12 +48,12 @@ const likeCard = (req, res) => {
     { $addToSet: { likes: req.user._id } },
     { new: true }
   )
-    .orFail(() => res.status(404).send({ massage: 'Карточки не существует' }))
+    .orFail(() => res.status(404).send({ message: 'Карточки не существует' }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
         return res
           .status(400)
-          .send({ massage: 'Отправлены неправильные данные' });
+          .send({ message: 'Отправлены неправильные данные' });
       }
       return res.status(500).send('Ошибка сервера');
     });
@@ -65,12 +65,12 @@ const dislikeCard = (req, res) => {
     { $pull: { likes: req.user._id } },
     { new: true }
   )
-    .orFail(() => res.status(404).send({ massage: 'Карточки не существует' }))
+    .orFail(() => res.status(404).send({ message: 'Карточки не существует' }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
         return res
           .status(400)
-          .send({ massage: 'Отправлены неправильные данные' });
+          .send({ message: 'Отправлены неправильные данные' });
       }
       return res.status(500).send('Ошибка сервера');
     });
