@@ -1,4 +1,7 @@
 const Card = require('../models/cards');
+const { PAGE_NOT_FOUND, BAD_REQUEST, INTERNAL_SERVER_ERROR } = require('../errors');
+
+//Благодарю за ваши комментарии, с orFail было особенно полезно ) status 200 пока осталю для себя, но в следующей ПР почищу
 
 const createCards = (req, res) => {
   const { id } = req.user;
@@ -11,10 +14,10 @@ const createCards = (req, res) => {
     .catch((err) => {
       if (err.name === 'ValidationError') {
         return res
-          .status(400)
+          .status(BAD_REQUEST)
           .send({ message: 'Отправлены неправильные данные' });
       }
-      return res.status(500).send('Ошибка сервера');
+      return res.status(INTERNAL_SERVER_ERROR).send('Ошибка сервера');
     });
 };
 
@@ -23,13 +26,8 @@ const getCards = (req, res) => {
     .then((users) => {
       return res.status(200).send(users);
     })
-    .catch((err) => {
-      if (err.name === 'ValidationError') {
-        return res
-          .status(400)
-          .send({ message: 'Отправлены неправильные данные' });
-      }
-      return res.status(500).send('Ошибка сервера');
+    .catch(() => {
+      return res.status(INTERNAL_SERVER_ERROR).send('Ошибка сервера');
     });
 };
 
@@ -46,13 +44,13 @@ const deleteCard = (req, res,) => {
     .catch((err) => {
       if (err.name === 'CastError') {
         return res
-          .status(400)
+          .status(BAD_REQUEST)
           .send({ message: 'Отправлены неправильные данные' });
       }
       if (err.message === 'NotFound') {
-        return res.status(404).send({ message: 'Not Found' });
+        return res.status(PAGE_NOT_FOUND).send({ message: 'Not Found' });
       }
-      return res.status(500).send('Ошибка сервера');
+      return res.status(INTERNAL_SERVER_ERROR).send('Ошибка сервера');
     });
 };
 
@@ -69,13 +67,13 @@ const likeCard = (req, res) => {
       console.log(err.message);
       if (err.name === 'CastError') {
         return res
-          .status(400)
+          .status(BAD_REQUEST)
           .send({ message: 'Отправлены неправильные данные' });
       }
       if (err.message === 'NotFound') {
-        return res.status(404).send({ message: 'Not Found' });
+        return res.status(PAGE_NOT_FOUND).send({ message: 'Not Found' });
       }
-      return res.status(500).send('Ошибка сервера');
+      return res.status(INTERNAL_SERVER_ERROR).send('Ошибка сервера');
     });
 };
 
@@ -89,13 +87,13 @@ const dislikeCard = (req, res) => {
     .catch((err) => {
       if (err.name === 'CastError') {
         return res
-          .status(400)
+          .status(BAD_REQUEST)
           .send({ message: 'Отправлены неправильные данные' });
       }
       if (err.message === 'NotFound') {
-        return res.status(404).send({ message: 'Not Found' });
+        return res.status(PAGE_NOT_FOUND).send({ message: 'Not Found' });
       }
-      return res.status(500).send('Ошибка сервера');
+      return res.status(INTERNAL_SERVER_ERROR).send('Ошибка сервера');
     });
 };
 
