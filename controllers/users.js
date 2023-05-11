@@ -1,24 +1,10 @@
 const User = require('../models/users');
+
 const {
   PAGE_NOT_FOUND,
   BAD_REQUEST,
   INTERNAL_SERVER_ERROR,
 } = require('../errors');
-
-const createUser = (req, res) => {
-  const { name, about, avatar } = req.body;
-
-  User.create({ name, about, avatar })
-    .then((newUser) => res.status(201).send(newUser))
-    .catch((err) => {
-      if (err.name === 'ValidationError') {
-        return res
-          .status(BAD_REQUEST)
-          .send({ message: 'Отправлены неправильные данные' });
-      }
-      return res.status(INTERNAL_SERVER_ERROR).send({ message: 'Ошибка сервера' });
-    });
-};
 
 const getFiltredUser = (req, res) => {
   const { id } = req.params;
@@ -35,7 +21,9 @@ const getFiltredUser = (req, res) => {
       if (err.name === 'CastError') {
         return res.status(BAD_REQUEST).send({ message: 'Невалидный id' });
       }
-      return res.status(INTERNAL_SERVER_ERROR).send({ message: 'Ошибка сервера' });
+      return res
+        .status(INTERNAL_SERVER_ERROR)
+        .send({ message: 'Ошибка сервера' });
     });
 };
 
@@ -49,7 +37,9 @@ const userMe = (user, res) => {
   if (user) {
     return res.status(200).send(user);
   }
-  return res.status(PAGE_NOT_FOUND).send({ message: 'Пользователь не существует' });
+  return res
+    .status(PAGE_NOT_FOUND)
+    .send({ message: 'Пользователь не существует' });
 };
 
 const updateUserData = (req, res) => {
@@ -77,7 +67,9 @@ const updateUserData = (req, res) => {
           message: 'Переданы некорректные данные при обновлении профиля',
         });
       }
-      return res.status(INTERNAL_SERVER_ERROR).send({ message: 'Ошибка сервера' });
+      return res
+        .status(INTERNAL_SERVER_ERROR)
+        .send({ message: 'Ошибка сервера' });
     });
 };
 
@@ -103,14 +95,31 @@ const updateUserAvatar = (req, res) => {
           message: 'Переданы некорректные данные при обновлении профиля',
         });
       }
-      return res.status(INTERNAL_SERVER_ERROR).send({ message: 'Ошибка сервера' });
+      return res
+        .status(INTERNAL_SERVER_ERROR)
+        .send({ message: 'Ошибка сервера' });
+    });
+};
+
+const getMyProfile = (req, res, next) => {
+  const userId = req.user._id;
+
+  User.findById(userId)
+    .orFail(() => new PAGE_NOT_FOUND('Пользватель с указанным id не существует'))
+    .then((user) => res.status(200).send(user))
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        next(new BAD_REQUEST('Невалидный id'));
+        return;
+      }
+      next(err);
     });
 };
 
 module.exports = {
-  createUser,
   getFiltredUser,
   getUsers,
   updateUserData,
   updateUserAvatar,
+  getMyProfile,
 };

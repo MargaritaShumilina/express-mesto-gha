@@ -30,9 +30,19 @@ const cardId = (card, res) => {
   return res.status(200).send(card);
 };
 
-const deleteCard = (req, res) => {
-  Card.findByIdAndRemove(req.params.id)
-    .then((card) => cardId(card, res))
+const deleteCard = (req, res, next) => {
+  const { id } = req.params;
+
+  const userId = req.user._id;
+
+  Card.findById(id)
+    .then((card) => {
+      if (card.owner.equals(userId)) {
+        Card.findByIdAndRemove(req.params.id)
+          .then(() => res.send({ message: 'Карточка удалена успешно' }))
+          .catch(next);
+      }
+    })
     .catch((err) => {
       if (err.name === 'CastError') {
         return res
