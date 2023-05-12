@@ -22,17 +22,12 @@ const getFiltredUser = (req, res, next) => {
       if (err.message === 'NotFound') {
         next(new PAGE_NOT_FOUND('NotFound'));
         return;
-        // return res.status(PAGE_NOT_FOUND).send({ message: 'Not Found' });
       }
       if (err.name === 'CastError') {
         next(new BAD_REQUEST('Невалидный id'));
         return;
-        // return res.status(BAD_REQUEST).send({ message: 'Невалидный id' });
       }
       next(err);
-      // return res
-      //   .status(INTERNAL_SERVER_ERROR)
-      //   .send({ message: 'Ошибка сервера' });
     });
 };
 
@@ -40,7 +35,6 @@ const getUsers = (req, res, next) => {
   User.find({})
     .then((users) => res.send(users))
     .catch(next);
-      // (err) => res.status(INTERNAL_SERVER_ERROR).send({ message: 'Ошибка сервера' }));
 };
 
 const userMe = (user, res, next) => {
@@ -48,9 +42,6 @@ const userMe = (user, res, next) => {
     return res.send(user);
   }
   next(new PAGE_NOT_FOUND('NotFound'));
-  // res
-  //   .status(PAGE_NOT_FOUND)
-  //   .send({ message: 'Пользователь не существует' });
 };
 
 const updateUserData = (req, res, next) => {
@@ -91,7 +82,7 @@ const updateUserAvatar = (req, res, next) => {
     {
       new: true,
       runValidators: true,
-    }
+    },
   )
     .then((user) => {
       userMe(user, res);
@@ -99,14 +90,8 @@ const updateUserAvatar = (req, res, next) => {
     .catch((err) => {
       if (err.name === 'ValidationError') {
         next(new BAD_REQUEST('Переданы некорректные данные при обновлении профиля'));
-        // return res.status(BAD_REQUEST).send({
-        //   message: 'Переданы некорректные данные при обновлении профиля',
-        // });
       }
       next(err);
-      // return res
-      //   .status(INTERNAL_SERVER_ERROR)
-      //   .send({ message: 'Ошибка сервера' });
     });
 };
 
