@@ -10,10 +10,11 @@ const {
 const handleErrors = require('../middlewares/handleErrors');
 
 const createCards = (req, res) => {
-  const { _id } = req.user;
+  const userId = req.user._id;
+  // const { _id } = req.user;
   const { link, name } = req.body;
 
-  Card.create({ link, name, owner: _id })
+  Card.create({ link, name, owner: userId })
     .then((card) => res.status(201).send(card))
     .catch((err) => {
       handleErrors(err);

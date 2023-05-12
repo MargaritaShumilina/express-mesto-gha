@@ -12,6 +12,9 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use(router);
+app.use((err, req, res, next) => {
+  res.status(err.statusCode).send({ message: err.message });
+});
 app.use('*', (req, res) => {
   res.status(404).send({ message: 'Page Not Found' });
 });

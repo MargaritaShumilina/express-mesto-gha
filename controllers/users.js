@@ -47,7 +47,7 @@ const userMe = (user, res, next) => {
   if (user) {
     return res.send(user);
   }
-  return next(new PAGE_NOT_FOUND('NotFound'));
+  next(new PAGE_NOT_FOUND('NotFound'));
   // res
   //   .status(PAGE_NOT_FOUND)
   //   .send({ message: 'Пользователь не существует' });
@@ -73,17 +73,10 @@ const updateUserData = (req, res, next) => {
       userMe(user, res);
     })
     .catch((err) => {
-      // handleErrors(err);
       if (err.name === 'ValidationError') {
         next(new BAD_REQUEST('Переданы некорректные данные при обновлении профиля'));
-        // return res.status(BAD_REQUEST).send({
-        //   message: 'Переданы некорректные данные при обновлении профиля',
-        // });
       }
       next(err);
-      // return res
-      //   .status(INTERNAL_SERVER_ERROR)
-      //   .send({ message: 'Ошибка сервера' });
     });
 };
 
@@ -105,9 +98,7 @@ const updateUserAvatar = (req, res, next) => {
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        next(
-          new BAD_REQUEST('Переданы некорректные данные при обновлении профиля')
-        );
+        next(new BAD_REQUEST('Переданы некорректные данные при обновлении профиля'));
         // return res.status(BAD_REQUEST).send({
         //   message: 'Переданы некорректные данные при обновлении профиля',
         // });
@@ -124,7 +115,7 @@ const getMyProfile = (req, res, next) => {
 
   User.findById(userId)
     .orFail(() => new PAGE_NOT_FOUND('Пользватель с указанным id не существует'))
-    .then((user) => res.status(200).send(user))
+    .then((user) => res.send(user))
     .catch((err) => {
       if (err.name === 'CastError') {
         next(new BAD_REQUEST('Невалидный id'));
