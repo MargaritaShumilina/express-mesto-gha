@@ -1,20 +1,16 @@
 const {
   PAGE_NOT_FOUND,
   BAD_REQUEST,
-  INTERNAL_SERVER_ERROR,
-  UNAUTHORIZED,
-  FORBIDDEN,
-  CONFLICT,
 } = require('../errors');
 
-const handleErrors = () => {
+const handleErrors = (err, next) => {
   if (err.message === 'NotFound') {
-    return res.status(PAGE_NOT_FOUND).send({ message: 'Not Found' });
+    return next(new PAGE_NOT_FOUND({ message: 'Not Found' }));
   }
-  if (err.name === 'CastError') {
-    return res.status(BAD_REQUEST).send({ message: 'Невалидный id' });
+  if (err.name === 'CastError' || err.name === 'ValidationError') {
+    return next(new BAD_REQUEST({ message: 'Ошибка данных' }));
   }
-  return res.status(INTERNAL_SERVER_ERROR).send({ message: 'Ошибка сервера' });
+  next(err);
 };
 
 module.exports = handleErrors;

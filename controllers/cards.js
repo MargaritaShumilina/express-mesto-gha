@@ -1,19 +1,15 @@
 const Card = require('../models/cards');
 const { PAGE_NOT_FOUND, BAD_REQUEST, INTERNAL_SERVER_ERROR } = require('../errors');
+const handleErrors = require("../middlewares/handleErrors");
 
 const createCards = (req, res) => {
-  const { id } = req.user;
+  const { _id } = req.user;
   const { link, name } = req.body;
 
-  Card.create({ link, name, owner: id })
+  Card.create({ link, name, owner: _id })
     .then((card) => res.status(201).send(card))
     .catch((err) => {
-      if (err.name === 'ValidationError') {
-        return res
-          .status(BAD_REQUEST)
-          .send({ message: 'Отправлены неправильные данные' });
-      }
-      return res.status(INTERNAL_SERVER_ERROR).send('Ошибка сервера');
+      handleErrors(err);
     });
 };
 
@@ -27,7 +23,7 @@ const cardId = (card, res) => {
   if (!card) {
     throw new Error('NotFound');
   }
-  return res.status(200).send(card);
+  return res.send(card);
 };
 
 const deleteCard = (req, res, next) => {

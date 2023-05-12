@@ -1,4 +1,5 @@
 const User = require('../models/users');
+const handleErrors = require('../middlewares/handleErrors');
 
 const {
   PAGE_NOT_FOUND,
@@ -62,18 +63,20 @@ const updateUserData = (req, res) => {
       userMe(user, res);
     })
     .catch((err) => {
-      if (err.name === 'ValidationError') {
-        return res.status(BAD_REQUEST).send({
-          message: 'Переданы некорректные данные при обновлении профиля',
-        });
-      }
-      return res
-        .status(INTERNAL_SERVER_ERROR)
-        .send({ message: 'Ошибка сервера' });
+      handleErrors(err);
+    //   if (err.name === 'ValidationError') {
+    //     return res.status(BAD_REQUEST).send({
+    //       message: 'Переданы некорректные данные при обновлении профиля',
+    //     });
+    //   }
+    //   return res
+    //     .status(INTERNAL_SERVER_ERROR)
+    //     .send({ message: 'Ошибка сервера' });
     });
 };
 
 const updateUserAvatar = (req, res) => {
+  console.log(req.user);
   const userId = req.user.id;
 
   const { avatar } = req.body;

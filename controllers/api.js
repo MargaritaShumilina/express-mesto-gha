@@ -2,6 +2,7 @@ const bcrypt = require('bcryptjs');
 
 const User = require('../models/users');
 const generateToken = require('../utils/token');
+const handleErrors = require('../middlewares/handleErrors');
 
 const {
   BAD_REQUEST,
@@ -20,31 +21,25 @@ const login = (req, res, next) => {
     .select('+password')
     .then((user) => {
       if (!user) {
-        next(new UNAUTHORIZED('Неправильные почта или пароль'));
-
-        return;
+        throw new UNAUTHORIZED('Неправильные почта или пароль');
       }
-      bcrypt
+      return bcrypt
         .compare(password, user.password)
         .then((matched) => {
           if (!matched) {
             next(new UNAUTHORIZED('Неправильные почта или пароль'));
-            return;
           }
 
           const token = generateToken(user._id);
 
-          res.status(200).send({ token });
+          res.send({ token });
         })
         .catch(() => {
           next(new INTERNAL_SERVER_ERROR('Ошибка сервера'));
         });
     })
     .catch((err) => {
-      if (err.name === 'ValidationError') {
-        return next(new BAD_REQUEST('Отправлены неправильные данные'));
-      }
-      return next(new INTERNAL_SERVER_ERROR('Ошибка сервера'));
+      handleErrors(err);
     });
 };
 
@@ -79,17 +74,11 @@ const createUser = async (req, res, next) => {
       password: hash,
     });
 
-    res
-      .status(201)
-      .send({
-        massage: `Пользователь ${newUser.email} успешно зарегистрирован`,
-      });
+    res.status(201).send({ newUser });
   } catch (err) {
-    if (err.name === 'ValidationError') {
-      next(new BAD_REQUEST('Отправлены неправильные данные'));
-      return;
+    if (err.code === 11000) {
+      next(new Error('Пользователь с такой почтой уже зарегистрирвован'));
     }
-    next(new INTERNAL_SERVER_ERROR('Ошибка сервера'));
   }
 };
 
