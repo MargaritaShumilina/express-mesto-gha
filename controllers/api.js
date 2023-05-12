@@ -5,16 +5,18 @@ const generateToken = require('../utils/token');
 const handleErrors = require('../middlewares/handleErrors');
 
 const {
+  PAGE_NOT_FOUND,
   BAD_REQUEST,
   INTERNAL_SERVER_ERROR,
   UNAUTHORIZED,
+  FORBIDDEN,
+  CONFLICT,
 } = require('../errors');
 
 const login = (req, res, next) => {
   const { email, password } = req.body;
   if (!email || !password) {
-    next(new BAD_REQUEST('Отправлены неправильные данные'));
-    return;
+    throw new BAD_REQUEST('Отправлены неправильные данные');
   }
 
   User.findOne({ email })
@@ -27,20 +29,22 @@ const login = (req, res, next) => {
         .compare(password, user.password)
         .then((matched) => {
           if (!matched) {
-            next(new UNAUTHORIZED('Неправильные почта или пароль'));
+            throw new UNAUTHORIZED('Неправильные почта или пароль');
           }
 
           const token = generateToken(user._id);
 
           res.send({ token });
         })
-        .catch(() => {
-          next(new INTERNAL_SERVER_ERROR('Ошибка сервера'));
-        });
+        .catch(next);
+          // () => {
+          // next(new INTERNAL_SERVER_ERROR('Ошибка сервера'));
+        // });
     })
-    .catch((err) => {
-      handleErrors(err);
-    });
+    .catch(next);
+    //   (err) => {
+    //   handleErrors(err);
+    // });
 };
 
 const createUser = async (req, res, next) => {
@@ -53,15 +57,17 @@ const createUser = async (req, res, next) => {
   } = req.body;
 
   if (!email || !password) {
-    next(new BAD_REQUEST('Отправлены неправильные данные'));
-    return;
+    throw new UNAUTHORIZED('Неправильные почта или пароль');
+    // next(new BAD_REQUEST('Отправлены неправильные данные'));
+    // return;
   }
 
   try {
     const user = await User.findOne({ email });
     if (user) {
-      next(new BAD_REQUEST('Пользовтель уже существует'));
-      return;
+      throw new CONFLICT("Пользовтель уже существует");
+      // next(new BAD_REQUEST('Пользовтель уже существует'));
+      // return;
     }
 
     const hash = await bcrypt.hash(password, 10);
@@ -77,8 +83,9 @@ const createUser = async (req, res, next) => {
     res.status(201).send({ newUser });
   } catch (err) {
     if (err.code === 11000) {
-      next(new Error('Пользователь с такой почтой уже зарегистрирвован'));
+      next(new CONFLICT('Пользователь с такой почтой уже зарегистрирвован'));
     }
+    next(err);
   }
 };
 

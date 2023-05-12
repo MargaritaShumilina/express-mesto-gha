@@ -8,45 +8,52 @@ const {
   UNAUTHORIZED,
   FORBIDDEN,
   CONFLICT,
-} = require("../errors");
+} = require('../errors');
 
-const getFiltredUser = (req, res) => {
-  const { id } = req.params;
+const getFiltredUser = (req, res, next) => {
+  const { userId } = req.params;
 
-  User.findById(id)
+  User.findById(userId)
     .orFail(() => {
-      throw new Error('NotFound');
+      throw new PAGE_NOT_FOUND('NotFound');
     })
-    .then((user) => res.status(200).send({ data: user }))
+    .then((user) => res.send({ data: user }))
     .catch((err) => {
       if (err.message === 'NotFound') {
-        return res.status(PAGE_NOT_FOUND).send({ message: 'Not Found' });
+        next(new PAGE_NOT_FOUND('NotFound'));
+        return;
+        // return res.status(PAGE_NOT_FOUND).send({ message: 'Not Found' });
       }
       if (err.name === 'CastError') {
-        return res.status(BAD_REQUEST).send({ message: 'Невалидный id' });
+        next(new BAD_REQUEST('Невалидный id'));
+        return;
+        // return res.status(BAD_REQUEST).send({ message: 'Невалидный id' });
       }
-      return res
-        .status(INTERNAL_SERVER_ERROR)
-        .send({ message: 'Ошибка сервера' });
+      next(err);
+      // return res
+      //   .status(INTERNAL_SERVER_ERROR)
+      //   .send({ message: 'Ошибка сервера' });
     });
 };
 
-const getUsers = (req, res) => {
+const getUsers = (req, res, next) => {
   User.find({})
-    .then((users) => res.status(200).send(users))
-    .catch(() => res.status(INTERNAL_SERVER_ERROR).send({ message: 'Ошибка сервера' }));
+    .then((users) => res.send(users))
+    .catch(next);
+      // (err) => res.status(INTERNAL_SERVER_ERROR).send({ message: 'Ошибка сервера' }));
 };
 
-const userMe = (user, res) => {
+const userMe = (user, res, next) => {
   if (user) {
-    return res.status(200).send(user);
+    return res.send(user);
   }
-  return res
-    .status(PAGE_NOT_FOUND)
-    .send({ message: 'Пользователь не существует' });
+  return next(new PAGE_NOT_FOUND('NotFound'));
+  // res
+  //   .status(PAGE_NOT_FOUND)
+  //   .send({ message: 'Пользователь не существует' });
 };
 
-const updateUserData = (req, res) => {
+const updateUserData = (req, res, next) => {
   const userId = req.user._id;
 
   const { name, about } = req.body;
@@ -66,19 +73,21 @@ const updateUserData = (req, res) => {
       userMe(user, res);
     })
     .catch((err) => {
-      handleErrors(err);
-    //   if (err.name === 'ValidationError') {
-    //     return res.status(BAD_REQUEST).send({
-    //       message: 'Переданы некорректные данные при обновлении профиля',
-    //     });
-    //   }
-    //   return res
-    //     .status(INTERNAL_SERVER_ERROR)
-    //     .send({ message: 'Ошибка сервера' });
+      // handleErrors(err);
+      if (err.name === 'ValidationError') {
+        next(new BAD_REQUEST('Переданы некорректные данные при обновлении профиля'));
+        // return res.status(BAD_REQUEST).send({
+        //   message: 'Переданы некорректные данные при обновлении профиля',
+        // });
+      }
+      next(err);
+      // return res
+      //   .status(INTERNAL_SERVER_ERROR)
+      //   .send({ message: 'Ошибка сервера' });
     });
 };
 
-const updateUserAvatar = (req, res) => {
+const updateUserAvatar = (req, res, next) => {
   const userId = req.user._id;
 
   const { avatar } = req.body;
@@ -89,20 +98,24 @@ const updateUserAvatar = (req, res) => {
     {
       new: true,
       runValidators: true,
-    },
+    }
   )
     .then((user) => {
       userMe(user, res);
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        return res.status(BAD_REQUEST).send({
-          message: 'Переданы некорректные данные при обновлении профиля',
-        });
+        next(
+          new BAD_REQUEST('Переданы некорректные данные при обновлении профиля')
+        );
+        // return res.status(BAD_REQUEST).send({
+        //   message: 'Переданы некорректные данные при обновлении профиля',
+        // });
       }
-      return res
-        .status(INTERNAL_SERVER_ERROR)
-        .send({ message: 'Ошибка сервера' });
+      next(err);
+      // return res
+      //   .status(INTERNAL_SERVER_ERROR)
+      //   .send({ message: 'Ошибка сервера' });
     });
 };
 
