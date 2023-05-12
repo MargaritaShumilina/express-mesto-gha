@@ -38,5 +38,5 @@ apiRouter.post(
   }),
   createUser,
 );
-
+apiRouter.use(errors());
 module.exports = apiRouter;
