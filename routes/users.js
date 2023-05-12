@@ -13,11 +13,17 @@ const {
 userRouter.get('/', getUsers);
 userRouter.get('/me', getMyProfile);
 
-userRouter.get('/:id', celebrate({
-  params: Joi.object().keys({
-    userId: Joi.string().required().length(24),
-  }).unknown(false),
-}), getFiltredUser);
+userRouter.get(
+  '/:userId',
+  celebrate({
+    params: Joi.object()
+      .keys({
+        userId: Joi.string().required().length(24),
+      })
+      .unknown(false),
+  }),
+  getFiltredUser
+);
 
 userRouter.patch(
   '/me',
