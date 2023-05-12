@@ -1,9 +1,11 @@
 const apiRouter = require('express').Router();
-const { errors, celebrate, Joi } = require('celebrate');
+const { errors, Joi, celebrate } = require('celebrate');
 const {
   login,
   createUser,
 } = require('../controllers/api');
+
+const validateUrl = require('../utils/validate');
 
 apiRouter.post(
   '/signin',
@@ -34,7 +36,7 @@ apiRouter.post(
       })
       .unknown(false),
   }),
-  createUser
+  createUser,
 );
 
 module.exports = apiRouter;
