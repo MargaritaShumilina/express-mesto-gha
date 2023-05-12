@@ -1,6 +1,13 @@
 const Card = require('../models/cards');
-const { PAGE_NOT_FOUND, BAD_REQUEST, INTERNAL_SERVER_ERROR } = require('../errors');
-const handleErrors = require("../middlewares/handleErrors");
+const {
+  PAGE_NOT_FOUND,
+  BAD_REQUEST,
+  INTERNAL_SERVER_ERROR,
+  UNAUTHORIZED,
+  FORBIDDEN,
+  CONFLICT,
+} = require('../errors');
+const handleErrors = require('../middlewares/handleErrors');
 
 const createCards = (req, res) => {
   const { _id } = req.user;
@@ -34,10 +41,12 @@ const deleteCard = (req, res, next) => {
   Card.findById(id)
     .then((card) => {
       if (card.owner.equals(userId)) {
-        Card.findByIdAndRemove(req.params.id)
+        Card.findByIdAndRemove(id)
           .then(() => res.send({ message: 'Карточка удалена успешно' }))
           .catch(next);
+        return;
       }
+      throw new FORBIDDEN('Доступ запрещен!');
     })
     .catch((err) => {
       if (err.name === 'CastError') {

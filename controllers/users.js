@@ -5,7 +5,10 @@ const {
   PAGE_NOT_FOUND,
   BAD_REQUEST,
   INTERNAL_SERVER_ERROR,
-} = require('../errors');
+  UNAUTHORIZED,
+  FORBIDDEN,
+  CONFLICT,
+} = require("../errors");
 
 const getFiltredUser = (req, res) => {
   const { id } = req.params;
@@ -44,7 +47,7 @@ const userMe = (user, res) => {
 };
 
 const updateUserData = (req, res) => {
-  const userId = req.user.id;
+  const userId = req.user._id;
 
   const { name, about } = req.body;
 
@@ -76,8 +79,7 @@ const updateUserData = (req, res) => {
 };
 
 const updateUserAvatar = (req, res) => {
-  console.log(req.user);
-  const userId = req.user.id;
+  const userId = req.user._id;
 
   const { avatar } = req.body;
 
