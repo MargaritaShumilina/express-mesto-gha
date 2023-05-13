@@ -118,12 +118,12 @@ const updateUserData = (req, res, next) => {
 };
 
 const updateUserAvatar = (req, res, next) => {
-  const owner = req.user._id;
-  const avatar = req.body;
+  // const owner = req.user._id;
+  // const avatar = req.body;
 
-  User.findByIdAndUpdate(owner, avatar, { new: true, runValidators: true })
-    .then((user) => userMe(user, res))
-    .catch(next);
+  // User.findByIdAndUpdate(owner, avatar, { new: true, runValidators: true })
+  //   .then((user) => userMe(user, res))
+  //   .catch(next);
   // const { avatar } = req.body;
 
   // User.findByIdAndUpdate(
@@ -138,34 +138,34 @@ const updateUserAvatar = (req, res, next) => {
   //     res.status(200).send(sendAvatar);
   //   })
   //   .catch(next);
-  // const userId = req.user._id;
+  const userId = req.user._id;
 
-  // const { avatar } = req.body;
+  const { avatar } = req.body;
 
-  // User.findByIdAndUpdate(
-  //   userId,
-  //   { avatar },
-  //   {
-  //     new: true,
-  //     runValidators: true,
-  //   },
-  // )
-  //   .then((user) => {
-  //     userMe(user, res);
-  //   })
-  //   .catch((err) => {
-  //     if (err.name === 'ValidationError') {
-  //       next(new BAD_REQUEST('Переданы некорректные данные при обновлении профиля'));
-  //     }
-  //     next(err);
-  //   });
+  User.findByIdAndUpdate(
+    userId,
+    { avatar },
+    {
+      new: true,
+      runValidators: true,
+    },
+  )
+    .then((user) => {
+      userMe(user, res);
+    })
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        next(new BAD_REQUEST('Переданы некорректные данные при обновлении профиля'));
+      }
+      next(err);
+    });
 };
 
 const getMyProfile = (req, res, next) => {
   User.findById(req.user._id)
     .then((user) => {
       if (!user) {
-        next(newPAGE_NOT_FOUND("Пользователь не найден"));
+        next(new PAGE_NOT_FOUND("Пользователь не найден"));
       }
       res.send(user);
     })

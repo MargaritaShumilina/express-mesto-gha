@@ -7,7 +7,7 @@ const { login, createUser } = require('../controllers/api');
 const { errors, celebrate, Joi } = require('celebrate');
 
 router.use('/users', auth, userRouter);
-router.use('/cards', auth, cardRouter);
+router.use('/cards', cardRouter);
 router.post(
   "/signin",
   celebrate({

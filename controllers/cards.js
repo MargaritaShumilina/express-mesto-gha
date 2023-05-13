@@ -13,6 +13,8 @@ const createCards = (req, res, next) => {
   const owner = req.user._id;
   const { name, link } = req.body;
 
+  console.log(req.user._id);
+
   Card.create({ name, link, owner })
     .then((newCard) => {
       res.send(newCard);
@@ -23,38 +25,14 @@ const createCards = (req, res, next) => {
           new BAD_REQUEST("Переданы некорректные данные при создании карточки.")
         );
       } else {
-      next(error);}
+        next(error);
+      }
     });
-  // const owner = req.user._id;
-
-  // const { name, link } = req.body;
-
-  // Card.create({ name, link, owner })
-  //   .then((card) => {
-  //     res.status(200).send(card);
-  //   })
-  //   .catch((err) => {
-  //     if (err.name === 'ValidationError') {
-  //       const fields = Object.keys(err.errors).join(', ');
-  //       next(new BAD_REQUEST(`поле(я) '${fields}' введены некорректно`));
-  //       return;
-  //     }
-  //     next(err);
-  //   });
-  // const userId = req.user._id;
-  // // const { _id } = req.user;
-  // const { link, name } = req.body;
-
-  // Card.create({ link, name, owner: userId })
-  //   .then((card) => res.status(201).send(card))
-  //   .catch((err) => {
-  //     handleErrors(err);
-  //   });
 };
 
 const getCards = (req, res) => {
   Card.find({})
-    .then((users) => res.status(200).send(users))
+    .then((users) => res.send(users))
     .catch(() => res.status(INTERNAL_SERVER_ERROR).send('Ошибка сервера'));
 };
 
@@ -90,31 +68,6 @@ const deleteCard = (req, res, next) => {
       }
       next(err);
     });
-  // const { id } = req.params;
-
-  // const userId = req.user._id;
-
-  // Card.findById(id)
-  //   .then((card) => {
-  //     if (card.owner.equals(userId)) {
-  //       Card.findByIdAndRemove(id)
-  //         .then(() => res.send({ message: 'Карточка удалена успешно' }))
-  //         .catch(next);
-  //       return;
-  //     }
-  //     throw new FORBIDDEN('Доступ запрещен!');
-  //   })
-  //   .catch((err) => {
-  //     if (err.name === 'CastError') {
-  //       return res
-  //         .status(BAD_REQUEST)
-  //         .send({ message: 'Отправлены неправильные данные' });
-  //     }
-  //     if (err.message === 'NotFound') {
-  //       return res.status(PAGE_NOT_FOUND).send({ message: 'Not Found' });
-  //     }
-  //     return res.status(INTERNAL_SERVER_ERROR).send('Ошибка сервера');
-  //   });
 };
 
 const likeCard = (req, res, next) => {
@@ -128,21 +81,6 @@ const likeCard = (req, res, next) => {
   )
     .then((card) => checkCardId(card, res))
     .catch(next);
-  // const { cardId } = req.params;
-
-  // Card.findByIdAndUpdate(
-  //   cardId,
-  //   { $addToSet: { likes: req.user._id } },
-  //   { new: true }
-  // )
-  //   .orFail(() => new PAGE_NOT_FOUND("Not Found"))
-  //   .then((card) => cardId(card, res))
-  //   .catch((err) => {
-  //     if (err.name === "CastError") {
-  //       next(new BAD_REQUEST("Отправлены неправильные данные"));
-  //     }
-  //     next(err);
-  //   });
 };
 
 const dislikeCard = (req, res, next) => {
@@ -156,19 +94,6 @@ const dislikeCard = (req, res, next) => {
   )
     .then((card) => checkCardId(card, res))
     .catch(next);
-  // const { cardId } = req.params;
-  // Card.findByIdAndUpdate(
-  //   cardId,
-  //   { $pull: { likes: req.user._id } },
-  //   { new: true }
-  // )
-  //   .then((card) => cardId(card, res))
-  //   .catch((err) => {
-  //     if (err.name === "CastError") {
-  //       next(new BAD_REQUEST("Отправлены неправильные данные"));
-  //     }
-  //     next(err);
-  //   });
 };
 
 module.exports = {
