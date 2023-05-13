@@ -9,10 +9,10 @@ const {
 } = require('../errors');
 
 const createCards = (req, res, next) => {
-  const { _id } = req.user;
+  const { id } = req.user;
   const { name, link } = req.body;
 
-  Card.create({ name, link, owner: _id })
+  Card.create({ name, link, owner: id })
     .then((newCard) => {
       res.send(newCard);
     })
@@ -42,7 +42,7 @@ const checkCardId = (card, res) => {
 const deleteCard = (req, res, next) => {
   const { cardId } = req.params;
 
-  const userId = req.user._id;
+  const userId = req.user.id;
 
   Card.findById(cardId)
     .orFail(() => new PAGE_NOT_FOUND("Карты с указанным id не существует"))
@@ -67,7 +67,7 @@ const deleteCard = (req, res, next) => {
 };
 
 const likeCard = (req, res, next) => {
-  const owner = req.user._id;
+  const owner = req.user.id;
   const { cardId } = req.params;
 
   Card.findByIdAndUpdate(
@@ -80,7 +80,7 @@ const likeCard = (req, res, next) => {
 };
 
 const dislikeCard = (req, res, next) => {
-  const owner = req.user._id;
+  const owner = req.user.id;
   const { cardId } = req.params;
 
   Card.findByIdAndUpdate(
