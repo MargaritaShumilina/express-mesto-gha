@@ -47,43 +47,76 @@ const login = (req, res, next) => {
     // });
 };
 
-const createUser = async (req, res, next) => {
-  const {
-    name,
-    about,
-    avatar,
-    email,
-    password,
-  } = req.body;
+// const createUser = async (req, res, next) => {
+//   const {
+//     name,
+//     about,
+//     avatar,
+//     email,
+//     password,
+//   } = req.body;
 
-  if (!email || !password) {
-    throw new UNAUTHORIZED('Неправильные почта или пароль');
-  }
+//   if (!email || !password) {
+//     throw new UNAUTHORIZED('Неправильные почта или пароль');
+//   }
 
-  try {
-    // const user = await User.findOne({ email });
-    // if (user) {
-    //   throw new CONFLICT("Пользовтель уже существует");
-    // }
+//   try {
+//     // const user = await User.findOne({ email });
+//     // if (user) {
+//     //   throw new CONFLICT("Пользовтель уже существует");
+//     // }
 
-    const hash = await bcrypt.hash(password, 10);
+//     const hash = await bcrypt.hash(password, 10);
 
-    const newUser = await User.create({
-      name,
-      about,
-      avatar,
-      email,
-      password: hash,
-    });
+//     const newUser = await User.create({
+//       name,
+//       about,
+//       avatar,
+//       email,
+//       password: hash,
+//     });
 
-    res.status(201).send({ newUser });
-  } catch (err) {
-    if (err.code === 11000) {
-      next(new CONFLICT('Пользователь с такой почтой уже зарегистрирвован'));
-      return;
-    }
-    next(err);
-  }
-};
+//     res.status(201).send({ newUser });
+//   } catch (err) {
+//     if (err.code === 11000) {
+//       next(new CONFLICT('Пользователь с такой почтой уже зарегистрирвован'));
+//       return;
+//     }
+//     next(err);
+//   }
+// };
+
+function createUser(req, res, next) {
+  const { name, about, avatar, email, password } = req.body;
+
+  bcrypt
+    .hash(password, 10)
+    .then((hash) => {
+      User.create({
+        email,
+        password: hash,
+        name,
+        avatar,
+        about,
+      })
+        .then((user) =>
+          res.send({
+            name: user.name,
+            about: user.about,
+            avatar: user.avatar,
+            email: user.email,
+            _id: user._id,
+          })
+        )
+        .catch((err) => {
+          if (err.code === 11000) {
+            next(new CONFLICT("Такой емейл уже занят"));
+            return;
+          }
+          next(err);
+        });
+    })
+    .catch(next);
+}
 
 module.exports = { login, createUser };
