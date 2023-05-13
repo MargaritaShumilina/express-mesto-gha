@@ -17,12 +17,8 @@ const getFiltredUser = (req, res, next) => {
     .orFail(() => {
       throw new PAGE_NOT_FOUND('NotFound');
     })
-    .then((user) => res.send({ data: user }))
+    .then((user) => res.send(user))
     .catch((err) => {
-      if (err.message === 'NotFound') {
-        next(new PAGE_NOT_FOUND('NotFound'));
-        return;
-      }
       if (err.name === 'CastError') {
         next(new BAD_REQUEST('Невалидный id'));
         return;

@@ -30,29 +30,29 @@ cardRouter.delete(
   celebrate({
     params: Joi.object()
       .keys({
-        cardId: Joi.string().required().length(24),
+        id: Joi.string().required().length(24),
       })
       .unknown(false),
   }),
   deleteCard,
 );
 cardRouter.put(
-  "/:cardId/likes",
+  "/:id/likes",
   celebrate({
     params: Joi.object()
       .keys({
-        cardId: Joi.string().required().length(24),
+        id: Joi.string().required().length(24),
       })
       .unknown(false),
   }),
   likeCard,
 );
 cardRouter.delete(
-  "/:cardId/likes",
+  "/:id/likes",
   celebrate({
     params: Joi.object()
       .keys({
-        cardId: Joi.string().required().length(24),
+        id: Joi.string().required().length(24),
       })
       .unknown(false),
   }),

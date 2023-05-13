@@ -40,8 +40,8 @@ const login = (req, res, next) => {
           // () => {
           // next(new INTERNAL_SERVER_ERROR('Ошибка сервера'));
         // });
-    })
-    .catch(next);
+    });
+    // .catch(next);
     //   (err) => {
     //   handleErrors(err);
     // });
@@ -58,17 +58,13 @@ const createUser = async (req, res, next) => {
 
   if (!email || !password) {
     throw new UNAUTHORIZED('Неправильные почта или пароль');
-    // next(new BAD_REQUEST('Отправлены неправильные данные'));
-    // return;
   }
 
   try {
-    const user = await User.findOne({ email });
-    if (user) {
-      throw new CONFLICT("Пользовтель уже существует");
-      // next(new BAD_REQUEST('Пользовтель уже существует'));
-      // return;
-    }
+    // const user = await User.findOne({ email });
+    // if (user) {
+    //   throw new CONFLICT("Пользовтель уже существует");
+    // }
 
     const hash = await bcrypt.hash(password, 10);
 
@@ -84,6 +80,7 @@ const createUser = async (req, res, next) => {
   } catch (err) {
     if (err.code === 11000) {
       next(new CONFLICT('Пользователь с такой почтой уже зарегистрирвован'));
+      return;
     }
     next(err);
   }

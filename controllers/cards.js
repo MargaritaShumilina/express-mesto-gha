@@ -62,43 +62,37 @@ const deleteCard = (req, res, next) => {
     });
 };
 
-const likeCard = (req, res) => {
+const likeCard = (req, res, next) => {
+  const { id } = req.params;
+
   Card.findByIdAndUpdate(
-    req.params.cardId,
+    id,
     { $addToSet: { likes: req.user._id } },
     { new: true },
   )
+    .orFail(() => new PAGE_NOT_FOUND("Not Found"))
     .then((card) => cardId(card, res))
     .catch((err) => {
-      if (err.name === 'CastError') {
-        return res
-          .status(BAD_REQUEST)
-          .send({ message: 'Отправлены неправильные данные' });
+      if (err.name === "CastError") {
+        next(new BAD_REQUEST("Отправлены неправильные данные"));
       }
-      if (err.message === 'NotFound') {
-        return res.status(PAGE_NOT_FOUND).send({ message: 'Not Found' });
-      }
-      return res.status(INTERNAL_SERVER_ERROR).send('Ошибка сервера');
+      next(err);
     });
 };
 
-const dislikeCard = (req, res) => {
+const dislikeCard = (req, res, next) => {
+  const { id } = req.params;
   Card.findByIdAndUpdate(
-    req.params.cardId,
+    id,
     { $pull: { likes: req.user._id } },
     { new: true },
   )
     .then((card) => cardId(card, res))
     .catch((err) => {
-      if (err.name === 'CastError') {
-        return res
-          .status(BAD_REQUEST)
-          .send({ message: 'Отправлены неправильные данные' });
+      if (err.name === "CastError") {
+        next(new BAD_REQUEST("Отправлены неправильные данные"));
       }
-      if (err.message === 'NotFound') {
-        return res.status(PAGE_NOT_FOUND).send({ message: 'Not Found' });
-      }
-      return res.status(INTERNAL_SERVER_ERROR).send('Ошибка сервера');
+      next(err);
     });
 };
 
