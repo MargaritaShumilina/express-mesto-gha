@@ -38,5 +38,5 @@ router.post(
   }),
   createUser,
 );
-
+router.use(errors());
 module.exports = router;
