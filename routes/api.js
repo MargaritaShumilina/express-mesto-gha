@@ -1,5 +1,5 @@
 const apiRouter = require('express').Router();
-const { errors, Joi, celebrate } = require('celebrate');
+const { Joi, celebrate } = require('celebrate');
 const {
   login,
   createUser,
@@ -18,7 +18,7 @@ apiRouter.post(
         password: Joi.string().required(),
         about: Joi.string().min(2).max(30),
         name: Joi.string().min(2).max(30),
-        avatar: Joi.string().custom(validateUrl, 'custom validate url'),
+        avatar: Joi.string().custom(validateUrl, 'validate url'),
       })
       .unknown(false),
   }),
@@ -39,5 +39,4 @@ apiRouter.post(
   }),
   login,
 );
-// apiRouter.use(errors());
 module.exports = apiRouter;

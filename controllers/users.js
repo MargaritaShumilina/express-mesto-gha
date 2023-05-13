@@ -1,13 +1,7 @@
 const User = require('../models/users');
-const handleErrors = require('../middlewares/handleErrors');
-
 const {
   PAGE_NOT_FOUND,
   BAD_REQUEST,
-  INTERNAL_SERVER_ERROR,
-  UNAUTHORIZED,
-  FORBIDDEN,
-  CONFLICT,
 } = require('../errors');
 
 const getFiltredUser = (req, res, next) => {
@@ -45,22 +39,18 @@ const updateUserData = (req, res, next) => {
   User.findByIdAndUpdate(
     req.user.id,
     { name, about },
-    { new: true, runValidators: true }
+    { new: true, runValidators: true },
   )
     .then((user) => {
       if (!user) {
-        next(new PAGE_NOT_FOUND("Пользователь с указанным _id не найден."));
+        next(new PAGE_NOT_FOUND('Пользователь с указанным _id не найден'));
       } else {
         res.send(user);
       }
     })
     .catch((err) => {
-      if (err.name === "ValidationError") {
-        next(
-          new BAD_REQUEST(
-            "Переданы некорректные данные при обновлении профиля."
-          )
-        );
+      if (err.name === 'ValidationError') {
+        next(new BAD_REQUEST('Переданы некорректные данные при обновлении профиля'));
       }
       next(err);
     });
@@ -91,11 +81,10 @@ const updateUserAvatar = (req, res, next) => {
 };
 
 const getMyProfile = (req, res, next) => {
-  console.log(req.user);
   User.findById(req.user.id)
     .then((user) => {
       if (!user) {
-        next(new PAGE_NOT_FOUND("Пользователь не найден"));
+        next(new PAGE_NOT_FOUND('Пользователь не найден'));
       }
       res.send({ data: user });
     })

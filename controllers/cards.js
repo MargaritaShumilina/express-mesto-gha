@@ -3,9 +3,7 @@ const {
   PAGE_NOT_FOUND,
   BAD_REQUEST,
   INTERNAL_SERVER_ERROR,
-  UNAUTHORIZED,
   FORBIDDEN,
-  CONFLICT,
 } = require('../errors');
 
 const createCards = (req, res, next) => {
@@ -17,9 +15,9 @@ const createCards = (req, res, next) => {
       res.send(newCard);
     })
     .catch((error) => {
-      if (error.name === "ValidationError") {
+      if (error.name === 'ValidationError') {
         next(
-          new BAD_REQUEST("Переданы некорректные данные при создании карточки.")
+          new BAD_REQUEST('Переданы некорректные данные при создании карточки.'),
         );
       }
       next(error);
@@ -45,21 +43,19 @@ const deleteCard = (req, res, next) => {
   const userId = req.user.id;
 
   Card.findById(cardId)
-    .orFail(() => new PAGE_NOT_FOUND("Карты с указанным id не существует"))
+    .orFail(() => new PAGE_NOT_FOUND('Карточки с указанным id не существует'))
     .then((card) => {
       if (card.owner.equals(userId)) {
         Card.findByIdAndRemove(cardId)
-          .then(() =>
-            res.status(200).send({ message: "Карта удалена успешно" })
-          )
+          .then(() => res.status(200).send({ message: 'Карточка удалена успешно' }))
           .catch(next);
         return;
       }
-      throw new FORBIDDEN("Доступ запрещен!");
+      throw new FORBIDDEN('Доступ запрещен!');
     })
     .catch((err) => {
-      if (err.name === "CastError") {
-        next(new BAD_REQUEST("Невалидный id"));
+      if (err.name === 'CastError') {
+        next(new BAD_REQUEST('Невалидный id'));
         return;
       }
       next(err);
@@ -73,9 +69,9 @@ const likeCard = (req, res, next) => {
   Card.findByIdAndUpdate(
     cardId,
     { $addToSet: { likes: owner } },
-    { new: true, runValidators: true }
+    { new: true, runValidators: true },
   )
-    .orFail(() => new PAGE_NOT_FOUND("Карты с указанным id не существует"))
+    .orFail(() => new PAGE_NOT_FOUND('Карточки с указанным id не существует'))
     .then((card) => checkCardId(card, res))
     .catch(next);
 };
@@ -87,9 +83,9 @@ const dislikeCard = (req, res, next) => {
   Card.findByIdAndUpdate(
     cardId,
     { $pull: { likes: owner } },
-    { new: true, runValidators: true }
+    { new: true, runValidators: true },
   )
-    .orFail(() => new PAGE_NOT_FOUND("Карты с указанным id не существует"))
+    .orFail(() => new PAGE_NOT_FOUND('Карточки с указанным id не существует'))
     .then((card) => checkCardId(card, res))
     .catch(next);
 };

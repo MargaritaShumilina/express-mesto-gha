@@ -1,19 +1,10 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
+const { errors } = require('celebrate');
 const router = require('./routes');
 const auth = require('./middlewares/auth');
 const apiRouter = require('./routes/api');
-const { errors, Joi, celebrate } = require('celebrate');
-
-const {
-  PAGE_NOT_FOUND,
-  BAD_REQUEST,
-  INTERNAL_SERVER_ERROR,
-  UNAUTHORIZED,
-  FORBIDDEN,
-  CONFLICT,
-} = require('./errors');
 
 const app = express();
 const { PORT = 3000 } = process.env;
@@ -25,11 +16,6 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(apiRouter);
 app.use(auth);
 app.use(router);
-// app.use(auth, (req, res, next) =>
-//   next(new PAGE_NOT_FOUND('Страница не найдена')));
-// app.use('*', auth, (req, res, next) =>
-//   next(new PAGE_NOT_FOUND('Page Not Found')),
-// );
 app.use(errors());
 app.use((err, req, res, next) => {
   const { statusCode = 500, message } = err;

@@ -1,8 +1,7 @@
 // import auth = require('../middlewares/auth');
 const cardRouter = require('express').Router();
-const { errors, celebrate, Joi } = require('celebrate');
+const { celebrate, Joi } = require('celebrate');
 const regularExp = require('../utils/constants');
-const validateUrl = require('../utils/validate');
 const {
   createCards,
   getCards,
@@ -18,22 +17,13 @@ cardRouter.post(
       name: Joi.string()
         .min(2)
         .max(30)
-        .messages({
-          'string.min': 'Название карточки не должно быть меньше 2 символов',
-          'string.max': 'Название карточки не должно быть больше 30 символов',
-          'any.required': 'Название карточки не должно быть пустым',
-        })
         .required(),
       link: Joi.string()
         .regex(regularExp)
-        .messages({
-          'string.dataUri': 'Невалидная ссылка',
-          'any.required': 'Название карточки не должно быть пустым',
-        })
         .required(),
     }),
   }),
-  createCards
+  createCards,
 );
 cardRouter.get('/', getCards);
 cardRouter.delete(

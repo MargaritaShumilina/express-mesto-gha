@@ -1,7 +1,5 @@
-const { errors, celebrate, Joi } = require('celebrate');
-const router = require('express').Router();
+const { celebrate, Joi } = require('celebrate');
 const userRouter = require('express').Router();
-const regularExp = require('../utils/constants');
 const validateUrl = require('../utils/validate');
 
 const {
@@ -53,7 +51,5 @@ userRouter.patch(
   }),
   updateUserAvatar,
 );
-
-// router.use(errors());
 
 module.exports = userRouter;

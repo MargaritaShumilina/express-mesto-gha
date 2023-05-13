@@ -2,16 +2,8 @@ const bcrypt = require('bcryptjs');
 
 const User = require('../models/users');
 const generateToken = require('../utils/token');
-const handleErrors = require('../middlewares/handleErrors');
 
-const {
-  PAGE_NOT_FOUND,
-  BAD_REQUEST,
-  INTERNAL_SERVER_ERROR,
-  UNAUTHORIZED,
-  FORBIDDEN,
-  CONFLICT,
-} = require('../errors');
+const { UNAUTHORIZED, CONFLICT } = require('../errors');
 
 const login = (req, res, next) => {
   const { email, password } = req.body;
@@ -31,7 +23,6 @@ const login = (req, res, next) => {
       });
     })
     .catch(next);
-
 };
 
 const createUser = async (req, res, next) => {
@@ -48,11 +39,6 @@ const createUser = async (req, res, next) => {
   }
 
   try {
-    // const user = await User.findOne({ email });
-    // if (user) {
-    //   throw new CONFLICT('Пользовтель уже существует');
-    // }
-
     const hash = await bcrypt.hash(password, 10);
 
     const newUser = await User.create({
