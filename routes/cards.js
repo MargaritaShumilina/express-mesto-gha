@@ -1,6 +1,7 @@
 // import auth = require('../middlewares/auth');
 const cardRouter = require('express').Router();
 const { errors, celebrate, Joi } = require('celebrate');
+const regularExp = require('../utils/constants');
 const validateUrl = require('../utils/validate');
 const {
   createCards,
@@ -24,19 +25,15 @@ cardRouter.post(
         })
         .required(),
       link: Joi.string()
-        .required()
-        .custom(validateUrl, 'custom validate url'),
+        .regex(regularExp)
+        .messages({
+          'string.dataUri': 'Невалидная ссылка',
+          'any.required': 'Название карточки не должно быть пустым',
+        })
+        .required(),
     }),
-  //   body: Joi.object()
-  //     .keys({
-  //       name: Joi.string().required().min(2).max(30),
-  //       link: Joi.string()
-  //         .required()
-  //         .custom(validateUrl, 'custom validate url'),
-  //     })
-  //     .unknown(false),
   }),
-  createCards,
+  createCards
 );
 cardRouter.get('/', getCards);
 cardRouter.delete(

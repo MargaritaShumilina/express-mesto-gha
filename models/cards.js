@@ -1,13 +1,18 @@
 const mongoose = require('mongoose');
-const validator = require("validator");
+const validator = require('validator');
+const regularExp = require('../utils/constants');
 
 const cardSchema = new mongoose.Schema({
   link: {
     type: String,
     required: true,
+    // validate: {
+    //   validator: (link) => validator.isUrl(link),
+    //   message: 'is not a valid link',
+    // },
     validate: {
-      validator: (link) => validator.isUrl(link),
-      message: "is not a valid link",
+      validator: (v) => regularExp.test(v),
+      message: "Невалидная ссылка",
     },
   },
   name: {
