@@ -43,7 +43,7 @@ const userMe = (user, res, next) => {
 const updateUserData = (req, res, next) => {
   const { name, about } = req.body;
   User.findByIdAndUpdate(
-    req.user._id,
+    req.user.id,
     { name, about },
     { new: true, runValidators: true }
   )
@@ -67,7 +67,7 @@ const updateUserData = (req, res, next) => {
 };
 
 const updateUserAvatar = (req, res, next) => {
-  const userId = req.user._id;
+  const userId = req.user.id;
 
   const { avatar } = req.body;
 
@@ -91,8 +91,8 @@ const updateUserAvatar = (req, res, next) => {
 };
 
 const getMyProfile = (req, res, next) => {
-  console.log(req.user._id);
-  User.findById(req.user._id)
+  console.log(req.user);
+  User.findById(req.user.id)
     .then((user) => {
       if (!user) {
         next(new PAGE_NOT_FOUND("Пользователь не найден"));

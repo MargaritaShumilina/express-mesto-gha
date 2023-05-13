@@ -73,31 +73,4 @@ const createUser = async (req, res, next) => {
   }
 };
 
-// function createUser(req, res, next) {
-//   bcrypt.hash(req.body.password, 10).then((hash) => {
-//     User.create({
-//       email: req.body.email,
-//       password: hash,
-//       name: req.body.name,
-//       about: req.body.about,
-//       avatar: req.body.avatar,
-//     })
-//       .then((newUser) => {
-//         res.status(201).send({
-//           email: newUser.email,
-//           name: newUser.name,
-//           about: newUser.about,
-//           avatar: newUser.avatar,
-//         });
-//       })
-//       .catch((error) => {
-//         if (error.code === 11000) {
-//           next(
-//             new CONFLICT('Пользователь с такой почтой уже существует')
-//           );
-//         }
-//       });
-//   });
-// }
-
 module.exports = { login, createUser };
