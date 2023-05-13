@@ -56,26 +56,50 @@ const deleteCard = (req, res, next) => {
   const userId = req.user._id;
 
   Card.findById(id)
+    .orFail(() => new PAGE_NOT_FOUND("Карты с указанным id не существует"))
     .then((card) => {
       if (card.owner.equals(userId)) {
-        Card.findByIdAndRemove(id)
-          .then(() => res.send({ message: 'Карточка удалена успешно' }))
+        Card.findByIdAndRemove(cardId)
+          .then(() =>
+            res.status(200).send({ message: "Карта удалена успешно" })
+          )
           .catch(next);
         return;
       }
-      throw new FORBIDDEN('Доступ запрещен!');
+      throw new FORBIDDEN("Доступ запрещен!");
     })
     .catch((err) => {
-      if (err.name === 'CastError') {
-        return res
-          .status(BAD_REQUEST)
-          .send({ message: 'Отправлены неправильные данные' });
+      if (err.name === "CastError") {
+        next(new BAD_REQUEST("Невалидный id"));
+        return;
       }
-      if (err.message === 'NotFound') {
-        return res.status(PAGE_NOT_FOUND).send({ message: 'Not Found' });
-      }
-      return res.status(INTERNAL_SERVER_ERROR).send('Ошибка сервера');
+      next(err);
     });
+  // const { id } = req.params;
+
+  // const userId = req.user._id;
+
+  // Card.findById(id)
+  //   .then((card) => {
+  //     if (card.owner.equals(userId)) {
+  //       Card.findByIdAndRemove(id)
+  //         .then(() => res.send({ message: 'Карточка удалена успешно' }))
+  //         .catch(next);
+  //       return;
+  //     }
+  //     throw new FORBIDDEN('Доступ запрещен!');
+  //   })
+  //   .catch((err) => {
+  //     if (err.name === 'CastError') {
+  //       return res
+  //         .status(BAD_REQUEST)
+  //         .send({ message: 'Отправлены неправильные данные' });
+  //     }
+  //     if (err.message === 'NotFound') {
+  //       return res.status(PAGE_NOT_FOUND).send({ message: 'Not Found' });
+  //     }
+  //     return res.status(INTERNAL_SERVER_ERROR).send('Ошибка сервера');
+  //   });
 };
 
 const likeCard = (req, res, next) => {
