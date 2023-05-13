@@ -41,16 +41,39 @@ const userMe = (user, res, next) => {
 };
 
 const updateUserData = (req, res, next) => {
-  const owner = req.user._id;
   const { name, about } = req.body;
-
   User.findByIdAndUpdate(
-    owner,
+    req.user._id,
     { name, about },
     { new: true, runValidators: true }
   )
-    .then((user) => userMe(user, res))
-    .catch(next);
+    .then((user) => {
+      if (!user) {
+        next(new PAGE_NOT_FOUND("Пользователь с указанным _id не найден."));
+      } else {
+        res.send(user);
+      }
+    })
+    .catch((err) => {
+      if (err.name === "ValidationError") {
+        next(
+          new BAD_REQUEST(
+            "Переданы некорректные данные при обновлении профиля."
+          )
+        );
+      }
+      next(err);
+    });
+  // const owner = req.user._id;
+  // const { name, about } = req.body;
+
+  // User.findByIdAndUpdate(
+  //   owner,
+  //   { name, about },
+  //   { new: true, runValidators: true }
+  // )
+  //   .then((user) => userMe(user, res))
+  //   .catch(next);
   // User.findByIdAndUpdate(req.user._id, req.body, {
   //   new: true,
   //   runValidators: true,
@@ -139,22 +162,30 @@ const updateUserAvatar = (req, res, next) => {
 };
 
 const getMyProfile = (req, res, next) => {
-  const userId = req.user._id;
-
-  User.findById(userId)
-    .orFail(() => new PAGE_NOT_FOUND("NotFound"))
-    .then((user) => res.send(user))
-    .catch((err) => {
-      if (err.message === "NotFound") {
-        next(new PAGE_NOT_FOUND("NotFound"));
+  User.findById(req.user._id)
+    .then((user) => {
+      if (!user) {
+        next(newPAGE_NOT_FOUND("Пользователь не найден"));
       }
+      res.send(user);
+    })
+    .catch((err) => next(err));
+  // const userId = req.user._id;
 
-      if (err.name === "CastError") {
-        next(new BAD_REQUEST("Невалидный id "));
-      }
+  // User.findById(userId)
+  //   .orFail(() => new PAGE_NOT_FOUND("NotFound"))
+  //   .then((user) => res.send(user))
+  //   .catch((err) => {
+  //     if (err.message === "NotFound") {
+  //       next(new PAGE_NOT_FOUND("NotFound"));
+  //     }
 
-      next(err);
-    });
+  //     if (err.name === "CastError") {
+  //       next(new BAD_REQUEST("Невалидный id "));
+  //     }
+
+  //     next(err);
+  //   });
 
   // User.findById(userId)
   //   .orFail(() => new PAGE_NOT_FOUND('Пользватель с указанным id не существует'))
