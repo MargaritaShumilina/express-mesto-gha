@@ -1,12 +1,10 @@
-const isUrl = require('validator/lib/isURL');
+const validator = require("validator");
 
 function validateUrl(value) {
-  if (!isUrl(value, { require_protocol: true })) {
-    throw new Error('is not a link');
+  if (!validator.isUrl(value, { require_protocol: true })) {
+    throw new Error("is not a link");
   }
   return value;
 }
 
-module.exports = {
-  validateUrl,
-};
+module.exports = validateUrl;

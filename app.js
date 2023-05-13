@@ -2,6 +2,17 @@ const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const router = require('./routes');
+const auth = require("./middlewares/auth");
+const { errors, Joi, celebrate } = require('celebrate');
+
+const {
+  PAGE_NOT_FOUND,
+  BAD_REQUEST,
+  INTERNAL_SERVER_ERROR,
+  UNAUTHORIZED,
+  FORBIDDEN,
+  CONFLICT,
+} = require("./errors");
 
 const app = express();
 const { PORT = 3000 } = process.env;
@@ -13,11 +24,15 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use(router);
 app.use((err, req, res, next) => {
-  res.status(err.statusCode).send({ message: err.message });
+  const { statusCode = 500, message } = err;
+  res
+    .status(statusCode)
+    .send({ message: statusCode === 500 ? 'Ошибка сервера' : message });
 });
-app.use('*', (req, res) => {
-  res.status(404).send({ message: 'Page Not Found' });
-});
+
+app.use('*', auth, (req, res, next) => next(new PAGE_NOT_FOUND('Page Not Found')));
+
+app.use(errors());
 
 app.listen(PORT, () => {
   console.log(`App listening on port ${PORT}`);
