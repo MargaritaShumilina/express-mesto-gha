@@ -10,22 +10,37 @@ const {
 const handleErrors = require('../middlewares/handleErrors');
 
 const createCards = (req, res, next) => {
-  const owner = req.user._id;
-
+  const { _id } = req.user;
   const { name, link } = req.body;
 
-  Card.create({ name, link, owner })
-    .then((card) => {
-      res.status(200).send(card);
+  Card.create({ name, link, owner: _id })
+    .then((newCard) => {
+      res.send(newCard);
     })
-    .catch((err) => {
-      if (err.name === 'ValidationError') {
-        const fields = Object.keys(err.errors).join(', ');
-        next(new BAD_REQUEST(`поле(я) '${fields}' введены некорректно`));
-        return;
+    .catch((error) => {
+      if (error.name === "ValidationError") {
+        next(
+          new BAD_REQUEST("Переданы некорректные данные при создании карточки.")
+        );
       }
-      next(err);
+      next(error);
     });
+  // const owner = req.user._id;
+
+  // const { name, link } = req.body;
+
+  // Card.create({ name, link, owner })
+  //   .then((card) => {
+  //     res.status(200).send(card);
+  //   })
+  //   .catch((err) => {
+  //     if (err.name === 'ValidationError') {
+  //       const fields = Object.keys(err.errors).join(', ');
+  //       next(new BAD_REQUEST(`поле(я) '${fields}' введены некорректно`));
+  //       return;
+  //     }
+  //     next(err);
+  //   });
   // const userId = req.user._id;
   // // const { _id } = req.user;
   // const { link, name } = req.body;
@@ -43,7 +58,7 @@ const getCards = (req, res) => {
     .catch(() => res.status(INTERNAL_SERVER_ERROR).send('Ошибка сервера'));
 };
 
-const cardId = (card, res) => {
+const checkCardId = (card, res) => {
   if (!card) {
     throw new Error('NotFound');
   }
@@ -51,11 +66,11 @@ const cardId = (card, res) => {
 };
 
 const deleteCard = (req, res, next) => {
-  const { id } = req.params;
+  const { cardId } = req.params;
 
   const userId = req.user._id;
 
-  Card.findById(id)
+  Card.findById(cardId)
     .orFail(() => new PAGE_NOT_FOUND("Карты с указанным id не существует"))
     .then((card) => {
       if (card.owner.equals(userId)) {
@@ -103,37 +118,57 @@ const deleteCard = (req, res, next) => {
 };
 
 const likeCard = (req, res, next) => {
-  const { id } = req.params;
+  const owner = req.user._id;
+  const { cardId } = req.params;
 
   Card.findByIdAndUpdate(
-    id,
-    { $addToSet: { likes: req.user._id } },
-    { new: true },
+    cardId,
+    { $addToSet: { likes: owner } },
+    { new: true, runValidators: true }
   )
-    .orFail(() => new PAGE_NOT_FOUND('Not Found'))
-    .then((card) => cardId(card, res))
-    .catch((err) => {
-      if (err.name === 'CastError') {
-        next(new BAD_REQUEST('Отправлены неправильные данные'));
-      }
-      next(err);
-    });
+    .then((card) => checkCardId(card, res))
+    .catch(next);
+  // const { cardId } = req.params;
+
+  // Card.findByIdAndUpdate(
+  //   cardId,
+  //   { $addToSet: { likes: req.user._id } },
+  //   { new: true }
+  // )
+  //   .orFail(() => new PAGE_NOT_FOUND("Not Found"))
+  //   .then((card) => cardId(card, res))
+  //   .catch((err) => {
+  //     if (err.name === "CastError") {
+  //       next(new BAD_REQUEST("Отправлены неправильные данные"));
+  //     }
+  //     next(err);
+  //   });
 };
 
 const dislikeCard = (req, res, next) => {
-  const { id } = req.params;
+  const owner = req.user._id;
+  const { cardId } = req.params;
+
   Card.findByIdAndUpdate(
-    id,
-    { $pull: { likes: req.user._id } },
-    { new: true },
+    cardId,
+    { $pull: { likes: owner } },
+    { new: true, runValidators: true }
   )
-    .then((card) => cardId(card, res))
-    .catch((err) => {
-      if (err.name === 'CastError') {
-        next(new BAD_REQUEST('Отправлены неправильные данные'));
-      }
-      next(err);
-    });
+    .then((card) => checkCardId(card, res))
+    .catch(next);
+  // const { cardId } = req.params;
+  // Card.findByIdAndUpdate(
+  //   cardId,
+  //   { $pull: { likes: req.user._id } },
+  //   { new: true }
+  // )
+  //   .then((card) => cardId(card, res))
+  //   .catch((err) => {
+  //     if (err.name === "CastError") {
+  //       next(new BAD_REQUEST("Отправлены неправильные данные"));
+  //     }
+  //     next(err);
+  //   });
 };
 
 module.exports = {
