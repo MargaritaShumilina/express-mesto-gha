@@ -75,6 +75,7 @@ const likeCard = (req, res, next) => {
     { $addToSet: { likes: owner } },
     { new: true, runValidators: true }
   )
+    .orFail(() => new PAGE_NOT_FOUND("Карты с указанным id не существует"))
     .then((card) => checkCardId(card, res))
     .catch(next);
 };
@@ -88,6 +89,7 @@ const dislikeCard = (req, res, next) => {
     { $pull: { likes: owner } },
     { new: true, runValidators: true }
   )
+    .orFail(() => new PAGE_NOT_FOUND("Карты с указанным id не существует"))
     .then((card) => checkCardId(card, res))
     .catch(next);
 };
