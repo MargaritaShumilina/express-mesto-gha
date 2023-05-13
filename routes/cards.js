@@ -59,6 +59,4 @@ cardRouter.delete(
   dislikeCard,
 );
 
-cardRouter.use(errors());
-
 module.exports = cardRouter;

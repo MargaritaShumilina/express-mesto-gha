@@ -7,13 +7,13 @@ const {
   FORBIDDEN,
   CONFLICT,
 } = require('../errors');
-const handleErrors = require('../middlewares/handleErrors');
 
 const createCards = (req, res, next) => {
-  const { _id } = req.user;
+
+  const owner = req.user._id;
   const { name, link } = req.body;
 
-  Card.create({ name, link, owner: _id })
+  Card.create({ name, link, owner })
     .then((newCard) => {
       res.send(newCard);
     })
@@ -22,8 +22,8 @@ const createCards = (req, res, next) => {
         next(
           new BAD_REQUEST("Переданы некорректные данные при создании карточки.")
         );
-      }
-      next(error);
+      } else {
+      next(error);}
     });
   // const owner = req.user._id;
 
