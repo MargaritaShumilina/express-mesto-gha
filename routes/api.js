@@ -8,20 +8,6 @@ const {
 const validateUrl = require('../utils/validate');
 
 apiRouter.post(
-  '/signin',
-  celebrate({
-    body: Joi.object()
-      .keys({
-        email: Joi.string()
-          .required()
-          .email({ tlds: { allow: false } }),
-        password: Joi.string().required(),
-      })
-      .unknown(false),
-  }),
-  login,
-);
-apiRouter.post(
   '/signup',
   celebrate({
     body: Joi.object()
@@ -37,6 +23,21 @@ apiRouter.post(
       .unknown(false),
   }),
   createUser,
+);
+
+apiRouter.post(
+  '/signin',
+  celebrate({
+    body: Joi.object()
+      .keys({
+        email: Joi.string()
+          .required()
+          .email({ tlds: { allow: false } }),
+        password: Joi.string().required(),
+      })
+      .unknown(false),
+  }),
+  login,
 );
 // apiRouter.use(errors());
 module.exports = apiRouter;
