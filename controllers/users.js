@@ -41,69 +41,111 @@ const userMe = (user, res, next) => {
 };
 
 const updateUserData = (req, res, next) => {
-  const userId = req.user._id;
-
-  const { name, about } = req.body;
-
-  User.findByIdAndUpdate(
-    userId,
-    {
-      name,
-      about,
-    },
-    {
-      new: true,
-      runValidators: true,
-    },
-  )
+  User.findByIdAndUpdate(req.user._id, req.body, {
+    new: true,
+    runValidators: true,
+  })
+    .orFail(
+      () => new PAGE_NOT_FOUND("Пользователь с указанным id не существует")
+    )
     .then((user) => {
-      userMe(user, res);
+      res.status(200).send({ newObject: user });
     })
     .catch((err) => {
-      if (err.name === 'ValidationError') {
-        next(new BAD_REQUEST('Переданы некорректные данные при обновлении профиля'));
+      if (err.name === "ValidationError") {
+        next(new BAD_REQUEST("Переданы некоректные данные"));
+      } else {
+        next(err);
       }
-      next(err);
     });
+  // const userId = req.user._id;
+
+  // const { name, about } = req.body;
+
+  // User.findByIdAndUpdate(
+  //   userId,
+  //   {
+  //     name,
+  //     about,
+  //   },
+  //   {
+  //     new: true,
+  //     runValidators: true,
+  //   },
+  // )
+  //   .then((user) => {
+  //     userMe(user, res);
+  //   })
+  //   .catch((err) => {
+  //     if (err.name === 'ValidationError') {
+  //       next(new BAD_REQUEST('Переданы некорректные данные при обновлении профиля'));
+  //     }
+  //     next(err);
+  //   });
 };
 
 const updateUserAvatar = (req, res, next) => {
-  const userId = req.user._id;
-
   const { avatar } = req.body;
 
   User.findByIdAndUpdate(
-    userId,
+    req.user._id,
     { avatar },
-    {
-      new: true,
-      runValidators: true,
-    },
+    { new: true, runValidators: true }
   )
-    .then((user) => {
-      userMe(user, res);
+    .orFail(
+      () => new PAGE_NOT_FOUND("Пользователь с указанным id не существует")
+    )
+    .then((sendAvatar) => {
+      res.status(200).send(sendAvatar);
     })
-    .catch((err) => {
-      if (err.name === 'ValidationError') {
-        next(new BAD_REQUEST('Переданы некорректные данные при обновлении профиля'));
-      }
-      next(err);
-    });
+    .catch(next);
+  // const userId = req.user._id;
+
+  // const { avatar } = req.body;
+
+  // User.findByIdAndUpdate(
+  //   userId,
+  //   { avatar },
+  //   {
+  //     new: true,
+  //     runValidators: true,
+  //   },
+  // )
+  //   .then((user) => {
+  //     userMe(user, res);
+  //   })
+  //   .catch((err) => {
+  //     if (err.name === 'ValidationError') {
+  //       next(new BAD_REQUEST('Переданы некорректные данные при обновлении профиля'));
+  //     }
+  //     next(err);
+  //   });
 };
 
 const getMyProfile = (req, res, next) => {
   const userId = req.user._id;
 
   User.findById(userId)
-    .orFail(() => new PAGE_NOT_FOUND('Пользватель с указанным id не существует'))
-    .then((user) => res.send(user))
+    .orFail(() => new PAGE_NOT_FOUND("Юзер с указанным id не существует"))
+    .then((user) => res.status(200).send(user))
     .catch((err) => {
-      if (err.name === 'CastError') {
-        next(new BAD_REQUEST('Невалидный id'));
+      if (err.name === "CastError") {
+        next(new BAD_REQUEST("Невалидный id "));
         return;
       }
       next(err);
     });
+
+  // User.findById(userId)
+  //   .orFail(() => new PAGE_NOT_FOUND('Пользватель с указанным id не существует'))
+  //   .then((user) => res.send(user))
+  //   .catch((err) => {
+  //     if (err.name === 'CastError') {
+  //       next(new BAD_REQUEST('Невалидный id'));
+  //       return;
+  //     }
+  //     next(err);
+  //   });
 };
 
 module.exports = {
