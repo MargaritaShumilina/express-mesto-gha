@@ -30,15 +30,14 @@ app.use(router);
 // app.use('*', auth, (req, res, next) =>
 //   next(new PAGE_NOT_FOUND('Page Not Found')),
 // );
-
+app.use(errors());
 app.use((err, req, res, next) => {
   const { statusCode = 500, message } = err;
   res
     .status(statusCode)
-    .send({ message: statusCode === 500 ? "Ошибка сервера" : message });
+    .send({ message: statusCode === 500 ? 'Ошибка сервера' : message });
   next();
 });
-app.use(errors());
 
 app.listen(PORT, () => {
   console.log(`App listening on port ${PORT}`);
