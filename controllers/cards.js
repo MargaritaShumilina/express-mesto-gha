@@ -9,13 +9,10 @@ const {
 } = require('../errors');
 
 const createCards = (req, res, next) => {
-
-  const owner = req.user._id;
+  const { _id } = req.user;
   const { name, link } = req.body;
 
-  console.log(req.user._id);
-
-  Card.create({ name, link, owner })
+  Card.create({ name, link, owner: _id })
     .then((newCard) => {
       res.send(newCard);
     })
@@ -24,10 +21,26 @@ const createCards = (req, res, next) => {
         next(
           new BAD_REQUEST("Переданы некорректные данные при создании карточки.")
         );
-      } else {
-        next(error);
       }
+      next(error);
     });
+
+  // const owner = req.user._id;
+  // const { name, link } = req.body;
+
+  // Card.create({ name, link, owner })
+  //   .then((newCard) => {
+  //     res.send(newCard);
+  //   })
+  //   .catch((error) => {
+  //     if (error.name === "ValidationError") {
+  //       next(
+  //         new BAD_REQUEST("Переданы некорректные данные при создании карточки.")
+  //       );
+  //     } else {
+  //       next(error);
+  //     }
+  //   });
 };
 
 const getCards = (req, res) => {

@@ -13,14 +13,28 @@ const {
 cardRouter.post(
   '/',
   celebrate({
-    body: Joi.object()
-      .keys({
-        name: Joi.string().required().min(2).max(30),
-        link: Joi.string()
-          .required()
-          .custom(validateUrl, 'custom validate url'),
-      })
-      .unknown(false),
+    body: Joi.object({
+      name: Joi.string()
+        .min(2)
+        .max(30)
+        .messages({
+          'string.min': 'Название карточки не должно быть меньше 2 символов',
+          'string.max': 'Название карточки не должно быть больше 30 символов',
+          'any.required': 'Название карточки не должно быть пустым',
+        })
+        .required(),
+      link: Joi.string()
+        .required()
+        .custom(validateUrl, 'custom validate url'),
+    }),
+  //   body: Joi.object()
+  //     .keys({
+  //       name: Joi.string().required().min(2).max(30),
+  //       link: Joi.string()
+  //         .required()
+  //         .custom(validateUrl, 'custom validate url'),
+  //     })
+  //     .unknown(false),
   }),
   createCards,
 );
