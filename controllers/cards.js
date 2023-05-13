@@ -9,16 +9,32 @@ const {
 } = require('../errors');
 const handleErrors = require('../middlewares/handleErrors');
 
-const createCards = (req, res) => {
-  const userId = req.user._id;
-  // const { _id } = req.user;
-  const { link, name } = req.body;
+const createCards = (req, res, next) => {
+  const owner = req.user._id;
 
-  Card.create({ link, name, owner: userId })
-    .then((card) => res.status(201).send(card))
+  const { name, link } = req.body;
+
+  Card.create({ name, link, owner })
+    .then((card) => {
+      res.status(200).send(card);
+    })
     .catch((err) => {
-      handleErrors(err);
+      if (err.name === 'ValidationError') {
+        const fields = Object.keys(err.errors).join(', ');
+        next(new BAD_REQUEST(`поле(я) '${fields}' введены некорректно`));
+        return;
+      }
+      next(err);
     });
+  // const userId = req.user._id;
+  // // const { _id } = req.user;
+  // const { link, name } = req.body;
+
+  // Card.create({ link, name, owner: userId })
+  //   .then((card) => res.status(201).send(card))
+  //   .catch((err) => {
+  //     handleErrors(err);
+  //   });
 };
 
 const getCards = (req, res) => {
@@ -70,11 +86,11 @@ const likeCard = (req, res, next) => {
     { $addToSet: { likes: req.user._id } },
     { new: true },
   )
-    .orFail(() => new PAGE_NOT_FOUND("Not Found"))
+    .orFail(() => new PAGE_NOT_FOUND('Not Found'))
     .then((card) => cardId(card, res))
     .catch((err) => {
-      if (err.name === "CastError") {
-        next(new BAD_REQUEST("Отправлены неправильные данные"));
+      if (err.name === 'CastError') {
+        next(new BAD_REQUEST('Отправлены неправильные данные'));
       }
       next(err);
     });
@@ -89,8 +105,8 @@ const dislikeCard = (req, res, next) => {
   )
     .then((card) => cardId(card, res))
     .catch((err) => {
-      if (err.name === "CastError") {
-        next(new BAD_REQUEST("Отправлены неправильные данные"));
+      if (err.name === 'CastError') {
+        next(new BAD_REQUEST('Отправлены неправильные данные'));
       }
       next(err);
     });
