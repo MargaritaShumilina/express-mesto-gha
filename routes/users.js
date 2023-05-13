@@ -2,6 +2,7 @@ const { errors, celebrate, Joi } = require('celebrate');
 const router = require('express').Router();
 const userRouter = require('express').Router();
 const regularExp = require('../utils/constants');
+const validateUrl = require("../utils/validate");
 
 const {
   getFiltredUser,
@@ -23,7 +24,7 @@ userRouter.get(
       })
       .unknown(false),
   }),
-  getFiltredUser
+  getFiltredUser,
 );
 
 userRouter.patch(
@@ -40,18 +41,17 @@ userRouter.patch(
 );
 
 userRouter.patch(
-  '/me/avatar',
+  "/me/avatar",
   celebrate({
     body: Joi.object()
       .keys({
         avatar: Joi.string()
           .required()
-          .regex(regularExp)
-          .message('Невалидная ссылка'),
+          .custom(validateUrl, "custom validate url"),
       })
       .unknown(false),
   }),
-  updateUserAvatar,
+  updateUserAvatar
 );
 
 router.use(errors());

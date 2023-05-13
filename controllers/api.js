@@ -15,32 +15,53 @@ const {
 
 const login = (req, res, next) => {
   const { email, password } = req.body;
-  if (!email || !password) {
-    throw new BAD_REQUEST('Отправлены неправильные данные');
-  }
 
   User.findOne({ email })
-    .select('+password')
+    .select("+password")
     .then((user) => {
       if (!user) {
-        throw new UNAUTHORIZED('Неправильные почта или пароль');
+        throw new UNAUTHORIZED("Емейл или пароль неверный");
       }
-      return bcrypt
-        .compare(password, user.password)
-        .then((matched) => {
-          if (!matched) {
-            throw new UNAUTHORIZED('Неправильные почта или пароль');
-          }
+      return {
+        isPasswordValid: bcrypt.compareSync(password, user.password),
+        user,
+      };
+    })
+    .then(({ isPasswordValid, user }) => {
+      if (!isPasswordValid) {
+        throw new UNAUTHORIZED("Емейл или пароль неверный");
+      }
+      const token = generateToken(user._id);
+      return res.status(200).send({ token });
+    })
+    .catch(next);
+  // const { email, password } = req.body;
+  // if (!email || !password) {
+  //   throw new BAD_REQUEST('Отправлены неправильные данные');
+  // }
 
-          const token = generateToken(user._id);
+  // User.findOne({ email })
+  //   .select('+password')
+  //   .then((user) => {
+  //     if (!user) {
+  //       throw new UNAUTHORIZED('Неправильные почта или пароль');
+  //     }
+  //     return bcrypt
+  //       .compare(password, user.password)
+  //       .then((matched) => {
+  //         if (!matched) {
+  //           throw new UNAUTHORIZED('Неправильные почта или пароль');
+  //         }
 
-          res.send({ token });
-        })
-        .catch(next);
-          // () => {
-          // next(new INTERNAL_SERVER_ERROR('Ошибка сервера'));
-        // });
-    });
+  //         const token = generateToken(user._id);
+
+  //         res.send({ token });
+  //       })
+  //       .catch(next);
+  //         // () => {
+  //         // next(new INTERNAL_SERVER_ERROR('Ошибка сервера'));
+  //       // });
+  //   });
     // .catch(next);
     //   (err) => {
     //   handleErrors(err);

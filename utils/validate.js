@@ -1,7 +1,7 @@
-const validator = require("validator");
+const isUrl = require("validator/lib/isURL");
 
 function validateUrl(value) {
-  if (!validator.isUrl(value, { require_protocol: true })) {
+  if (!isUrl(value, { require_protocol: true })) {
     throw new Error("is not a link");
   }
   return value;
