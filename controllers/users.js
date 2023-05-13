@@ -139,19 +139,20 @@ const updateUserAvatar = (req, res, next) => {
 };
 
 const getMyProfile = (req, res, next) => {
-  // User.findById(req.user._id)
-  //   .then((user) => res.send(user))
-  //   .catch(next);
   const userId = req.user._id;
 
   User.findById(userId)
-    .orFail(() => new PAGE_NOT_FOUND('Пользователя с указанным id не существует'))
-    .then((user) => res.status(200).send(user))
+    .orFail(() => new PAGE_NOT_FOUND("NotFound"))
+    .then((user) => res.send(user))
     .catch((err) => {
-      if (err.name === 'CastError') {
-        next(new BAD_REQUEST('Невалидный id '));
-        return;
+      if (err.message === "NotFound") {
+        next(new PAGE_NOT_FOUND("NotFound"));
       }
+
+      if (err.name === "CastError") {
+        next(new BAD_REQUEST("Невалидный id "));
+      }
+
       next(err);
     });
 
