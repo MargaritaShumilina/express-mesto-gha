@@ -50,7 +50,7 @@ const updateUserData = (req, res, next) => {
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        next(new BAD_REQUEST('Ошибка данных'));
+        return next(new BAD_REQUEST('Ошибка данных'));
       }
       return next(err);
     });
@@ -74,7 +74,7 @@ const updateUserAvatar = (req, res, next) => {
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        next(new BAD_REQUEST('Ошибка данных'));
+        return next(new BAD_REQUEST('Ошибка данных'));
       }
       return next(err);
     });

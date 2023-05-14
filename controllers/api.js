@@ -16,7 +16,7 @@ const login = (req, res, next) => {
       }
       return bcrypt.compare(password, user.password).then((matched) => {
         if (!matched) {
-          next(new UNAUTHORIZED('Неверные почта или пароль'));
+          return next(new UNAUTHORIZED('Неверные почта или пароль'));
         }
         const token = generateToken(user._id);
         return res.send({ token });
@@ -46,15 +46,13 @@ const createUser = async (req, res, next) => {
     });
 
     res.status(201).send({ newUser });
+  // Спасибо за ваши комментарии :)
   } catch (err) {
     if (err.name === 'ValidationError') {
       next(new BAD_REQUEST('Ошибка данных'));
-    }
-    if (err.code === 11000) {
+    } else if (err.code === 11000) {
       next(new CONFLICT('Пользователь с такой почтой уже существует'));
-      return;
-    }
-    next(err);
+    } else { next(err); }
   }
 };
 
