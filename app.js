@@ -18,7 +18,7 @@ app.use(apiRouter);
 app.use(auth);
 app.use(router);
 app.use(errors());
-app.use(handleError());
+app.use(handleError);
 
 app.listen(PORT, () => {
   console.log(`App listening on port ${PORT}`);
