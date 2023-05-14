@@ -43,16 +43,16 @@ const updateUserData = (req, res, next) => {
   )
     .then((user) => {
       if (!user) {
-        next(new PAGE_NOT_FOUND('Пользователь с указанным _id не найден'));
+        next(new PAGE_NOT_FOUND('Пользователь не найден'));
       } else {
         res.send(user);
       }
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        next(new BAD_REQUEST('Переданы некорректные данные при обновлении профиля'));
+        next(new BAD_REQUEST('Ошибка данных'));
       }
-      next(err);
+      return next(err);
     });
 };
 
@@ -74,9 +74,9 @@ const updateUserAvatar = (req, res, next) => {
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        next(new BAD_REQUEST('Переданы некорректные данные при обновлении профиля'));
+        next(new BAD_REQUEST('Ошибка данных'));
       }
-      next(err);
+      return next(err);
     });
 };
 
@@ -84,9 +84,9 @@ const getMyProfile = (req, res, next) => {
   User.findById(req.user.id)
     .then((user) => {
       if (!user) {
-        next(new PAGE_NOT_FOUND('Пользователь не найден'));
+        return next(new PAGE_NOT_FOUND('Пользователь не найден'));
       }
-      res.send({ data: user });
+      return res.send({ data: user });
     })
     .catch((err) => next(err));
 };

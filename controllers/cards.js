@@ -20,7 +20,7 @@ const createCards = (req, res, next) => {
           new BAD_REQUEST('Переданы некорректные данные при создании карточки.'),
         );
       }
-      next(error);
+      return next(error);
     });
 };
 
@@ -28,13 +28,6 @@ const getCards = (req, res) => {
   Card.find({})
     .then((users) => res.send(users))
     .catch(() => res.status(INTERNAL_SERVER_ERROR).send('Ошибка сервера'));
-};
-
-const checkCardId = (card, res) => {
-  if (!card) {
-    throw new Error('NotFound');
-  }
-  return res.send(card);
 };
 
 const deleteCard = (req, res, next) => {
@@ -47,7 +40,7 @@ const deleteCard = (req, res, next) => {
     .then((card) => {
       if (card.owner.equals(userId)) {
         Card.findByIdAndRemove(cardId)
-          .then(() => res.status(200).send({ message: 'Карточка удалена успешно' }))
+          .then(() => res.send({ message: 'Карточка удалена успешно' }))
           .catch(next);
         return;
       }
@@ -72,7 +65,7 @@ const likeCard = (req, res, next) => {
     { new: true, runValidators: true },
   )
     .orFail(() => new PAGE_NOT_FOUND('Карточки с указанным id не существует'))
-    .then((card) => checkCardId(card, res))
+    .then((card) => res.send(card))
     .catch(next);
 };
 
@@ -86,7 +79,7 @@ const dislikeCard = (req, res, next) => {
     { new: true, runValidators: true },
   )
     .orFail(() => new PAGE_NOT_FOUND('Карточки с указанным id не существует'))
-    .then((card) => checkCardId(card, res))
+    .then((card) => res.send(card))
     .catch(next);
 };
 
